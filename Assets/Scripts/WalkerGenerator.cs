@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -18,21 +17,19 @@ public class WalkerGenerator : MonoBehaviour
     public Tilemap tileMap;
     public Tile Floor;
     public Tile Wall;
-    public int MapWidth = 12;
+    public int MapWidth = 10;
     public int MapHeight = 60;
-
-    public int MaximumWalkers = 10;
+    public int MaximumWalkers = 3;
     public int TileCount = default;
-    public float FillPercentage = 0.35f;
-    public float WaitTime = 0.05f;
+    public float FillPercentage = 0.20f;
 
     void Start()
     {
         InitializeGrid();
     }
 
-    // Initialise la grille en remplissant tout de murs, place le premier walker
-    // en bas au centre, et centre la caméra sur le point de départ
+    // Initialise la grille, place le premier walker en bas au centre,
+    // génère tout instantanément puis rend la map
     void InitializeGrid()
     {
         gridHandler = new Grid[MapWidth, MapHeight];
@@ -48,28 +45,26 @@ public class WalkerGenerator : MonoBehaviour
 
         Walkers = new List<WalkerObject>();
 
-        // Départ en BAS au centre, le walker monte vers le haut
-        Vector3Int TileCenter = new Vector3Int(
-            gridHandler.GetLength(0) / 2,
-            2, // y = 2 pour laisser une marge de mur en bas
-            0
-        );
+        // Départ en bas au centre, le walker monte vers le haut
+        Vector2 startPos = new Vector2(MapWidth / 2, 2);
 
-        WalkerObject curWalker = new WalkerObject(new Vector2(TileCenter.x, TileCenter.y), GetDirection(), 0.5f);
-        gridHandler[TileCenter.x, TileCenter.y] = Grid.FLOOR;
-        tileMap.SetTile(TileCenter, Floor);
+        WalkerObject curWalker = new WalkerObject(startPos, GetDirection(), 0.5f);
+        gridHandler[(int)startPos.x, (int)startPos.y] = Grid.FLOOR;
+        TileCount++;
         Walkers.Add(curWalker);
 
-        TileCount++;
+        // Génération instantanée (synchrone)
+        CreateFloors();
 
-        // Centrer la caméra sur le bas de la map (point de départ du joueur)
+        // Rendu de toute la map en une passe
+        RenderMap();
+
+        // Centrer la caméra sur le point de départ du joueur
         Camera.main.transform.position = new Vector3(
-            TileCenter.x,
-            TileCenter.y,
+            startPos.x,
+            startPos.y,
             Camera.main.transform.position.z
         );
-
-        StartCoroutine(CreateFloors());
     }
 
     // Retourne une direction aléatoire biaisée vers le haut (60%)
@@ -84,10 +79,9 @@ public class WalkerGenerator : MonoBehaviour
         return Vector2.up;
     }
 
-    // Boucle principale de génération : fait marcher les walkers
-    // jusqu'à atteindre le pourcentage de remplissage souhaité,
-    // puis lance la création des murs
-    IEnumerator CreateFloors()
+    // Boucle principale de génération (synchrone) : fait marcher les walkers
+    // jusqu'à atteindre le pourcentage de remplissage souhaité
+    void CreateFloors()
     {
         int maxIterations = MapWidth * MapHeight * 10; // sécurité anti-boucle infinie
         int iterations = 0;
@@ -101,17 +95,18 @@ public class WalkerGenerator : MonoBehaviour
                 break;
             }
 
-            bool hasCreatedFloor = false;
             foreach (WalkerObject curWalker in Walkers)
             {
-                Vector3Int curPos = new Vector3Int((int)curWalker.Position.x, (int)curWalker.Position.y, 0);
+                Vector3Int curPos = new Vector3Int(
+                    (int)curWalker.Position.x,
+                    (int)curWalker.Position.y,
+                    0
+                );
 
                 if (gridHandler[curPos.x, curPos.y] != Grid.FLOOR)
                 {
-                    tileMap.SetTile(curPos, Floor);
-                    TileCount++;
                     gridHandler[curPos.x, curPos.y] = Grid.FLOOR;
-                    hasCreatedFloor = true;
+                    TileCount++;
                 }
             }
 
@@ -119,18 +114,23 @@ public class WalkerGenerator : MonoBehaviour
             ChanceToRedirect();
             ChanceToCreate();
             UpdatePosition();
-
-            if (hasCreatedFloor)
-            {
-                yield return new WaitForSeconds(WaitTime);
-            }
-            else
-            {
-                yield return null; // ← C'était sûrement ça le crash :
-            }   // sans yield quand aucun floor n'est créé, Unity freezait
         }
+    }
 
-        StartCoroutine(CreateWalls());
+    // Place toutes les tuiles en une seule passe après la génération
+    void RenderMap()
+    {
+        for (int x = 0; x < MapWidth; x++)
+        {
+            for (int y = 0; y < MapHeight; y++)
+            {
+                Vector3Int pos = new Vector3Int(x, y, 0);
+                if (gridHandler[x, y] == Grid.FLOOR)
+                    tileMap.SetTile(pos, Floor);
+                else
+                    tileMap.SetTile(pos, Wall);
+            }
+        }
     }
 
     // Supprime aléatoirement un walker s'il y en a plusieurs,
@@ -174,7 +174,6 @@ public class WalkerGenerator : MonoBehaviour
             {
                 Vector2 newDirection = GetDirection();
                 Vector2 newPosition = Walkers[i].Position;
-
                 WalkerObject newWalker = new WalkerObject(newPosition, newDirection, 0.5f);
                 Walkers.Add(newWalker);
             }
@@ -198,22 +197,5 @@ public class WalkerGenerator : MonoBehaviour
 
             Walkers[i] = FoundWalker;
         }
-    }
-
-    // Parcourt toute la grille et place la tuile Wall sur toutes
-    // les cases encore marquées WALL (tout ce que les walkers n'ont pas creusé)
-    IEnumerator CreateWalls()
-    {
-        for (int x = 0; x < gridHandler.GetLength(0); x++)
-        {
-            for (int y = 0; y < gridHandler.GetLength(1); y++)
-            {
-                if (gridHandler[x, y] == Grid.WALL)
-                {
-                    tileMap.SetTile(new Vector3Int(x, y, 0), Wall);
-                }
-            }
-        }
-        yield return null; // Nécessaire pour rester un IEnumerator valide
     }
 }

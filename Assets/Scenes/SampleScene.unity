@@ -529,12 +529,11 @@ MonoBehaviour:
   tileMap: {fileID: 825303900}
   Floor: {fileID: 11400000, guid: cec31826db3129442bbed04dd1c12a85, type: 2}
   Wall: {fileID: 11400000, guid: cf2cfcde24b44fd49a5af3aa1155e251, type: 2}
-  MapWidth: 12
-  MapHeight: 60
-  MaximumWalkers: 5
+  MapWidth: 10
+  MapHeight: 200
+  MaximumWalkers: 4
   TileCount: 0
-  FillPercentage: 0.35
-  WaitTime: 0.05
+  FillPercentage: 0.3
 --- !u!4 &1021402461
 Transform:
   m_ObjectHideFlags: 0
