@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e503a93522194b84b8f0555891a96002
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 201457
+  packageName: Full Character Controller - 2D Platformer
+  packageVersion: 1.0
+  assetPath: Assets/Character Controller/Prefabes/Platforms.prefab
+  uploadId: 448806

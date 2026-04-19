@@ -1,0 +1,51 @@
+Full Platformer 2D CharacterController 
+Thank You For Using My Product And Support Me 
+
+---------------------------
+
+Features :
+
+- 2D Responsive Horizontal Movement 
+- Jumping , Air Jumping
+- Dashing , Air Dashing (With Cooldowns)
+- Rotate To Move Direction
+- Rotate To Mouse Cursor
+- Clean and Optimized Code
+
+Everything is customizable from the editor
+
+-------------------------------
+
+How To Use :
+
+1 - Attach the script to your Player
+2 - Add RigidBody2D and BoxCollider2D (Should Be Box) to the Player, and attach the Physics Material To Them (PlayerMAT).
+3 - Create Ground Layer and set the ground and platforms to this layer
+4 - Create a tag and call it Ground, and set all grounds and platforms to it
+5 - Set the layer in the script in the inspector
+6 - Adjust the variables to fit your game
+7 - ENJOY !
+
+More Details Inside The Script
+
+-------------------
+
+INPUTS : 
+
+- Left Shift = Dash
+- Space = Jump
+- Left Mouse Button = Rotate To Mouse
+
+--------------------------------
+All right reserved, no re-sell, no claims, if you want to teach the script please credit the creator VEOdev
+-----------------------------------
+
+/ Client Support : 
+instagram.com/veo.dev
+------------------------
+/ Ask For Custom Scripts :
+fiverr.com/veodev
+
+
+----------------
+Made By VEOdev.

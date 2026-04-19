@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 261c9a8acd2bca74ca7a0e4f25dae6b7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 201457
+  packageName: Full Character Controller - 2D Platformer
+  packageVersion: 1.0
+  assetPath: Assets/Character Controller/Script/PlayerController.cs
+  uploadId: 448806

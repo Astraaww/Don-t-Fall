@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 195fa33e9040c92408ec56730266a410
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 6200000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 201457
+  packageName: Full Character Controller - 2D Platformer
+  packageVersion: 1.0
+  assetPath: Assets/Character Controller/Prefabes/PlayerMAT.physicsMaterial2D
+  uploadId: 448806

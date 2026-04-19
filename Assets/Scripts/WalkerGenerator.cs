@@ -6,90 +6,94 @@ public class WalkerGenerator : MonoBehaviour
 {
     public enum Grid
     {
-        FLOOR,
-        WALL,
-        EMPTY
+        EMPTY,  // chemin vide — le joueur peut passer
+        WALL,   // plateforme solide
     }
 
-    // Variables
     public Grid[,] gridHandler;
     public List<WalkerObject> Walkers;
-    public Tilemap tileMap;
-    public Tile Floor;
-    public Tile Wall;
+
+    public Tilemap tilemapWalls;       // Tilemap des murs (avec Collider)
+    public Tilemap tilemapBackground;  // Tilemap de fond (sans Collider, optionnel)
+
+    public RuleTile Wall;              // Ton Rule Tile avec autotiling
+    public TileBase Background;        // Tile de fond (simple Tile, peut être null)
+
     public int MapWidth = 10;
     public int MapHeight = 60;
     public int MaximumWalkers = 3;
     public int TileCount = default;
-    public float FillPercentage = 0.20f;
+    public float FillPercentage = 0.20f; // % de cases EMPTY (chemins)
+
+    public Transform playerTransform;
 
     void Start()
     {
         InitializeGrid();
     }
 
-    // Initialise la grille, place le premier walker en bas au centre,
-    // génère tout instantanément puis rend la map
     void InitializeGrid()
     {
         gridHandler = new Grid[MapWidth, MapHeight];
 
-        // Tout est mur par défaut — le walker va creuser dedans
         for (int x = 0; x < MapWidth; x++)
-        {
             for (int y = 0; y < MapHeight; y++)
-            {
                 gridHandler[x, y] = Grid.WALL;
-            }
-        }
 
         Walkers = new List<WalkerObject>();
 
-        // Départ en bas au centre, le walker monte vers le haut
         Vector2 startPos = new Vector2(MapWidth / 2, 2);
 
         WalkerObject curWalker = new WalkerObject(startPos, GetDirection(), 0.5f);
-        gridHandler[(int)startPos.x, (int)startPos.y] = Grid.FLOOR;
+        gridHandler[(int)startPos.x, (int)startPos.y] = Grid.EMPTY;
         TileCount++;
         Walkers.Add(curWalker);
 
-        // Génération instantanée (synchrone)
-        CreateFloors();
-
-        // Rendu de toute la map en une passe
+        CreatePaths();
         RenderMap();
 
-        // Centrer la caméra sur le point de départ du joueur
+        // Spawn du joueur sur la première case EMPTY
+        Vector2 spawnPos = FindSpawnPoint();
+        playerTransform.position = new Vector3(spawnPos.x + 0.5f, spawnPos.y + 0.5f, 0);
+
+        // Caméra sur le point de spawn
         Camera.main.transform.position = new Vector3(
-            startPos.x,
-            startPos.y,
+            spawnPos.x,
+            spawnPos.y,
             Camera.main.transform.position.z
         );
     }
 
-    // Retourne une direction aléatoire biaisée vers le haut (60%)
-    // pour simuler un puits qu'on creuse verticalement
+    // Cherche la première case EMPTY en partant du bas au centre
+    Vector2 FindSpawnPoint()
+    {
+        int centerX = MapWidth / 2;
+        for (int y = 0; y < MapHeight; y++)
+        {
+            if (gridHandler[centerX, y] == Grid.EMPTY)
+                return new Vector2(centerX, y);
+        }
+        return new Vector2(centerX, 2); // fallback
+    }
+
+    // Retourne une direction biaisée vers le haut (60%)
     Vector2 GetDirection()
     {
         float rand = UnityEngine.Random.value;
-
-        if (rand < 0.60f) return Vector2.up;    // 60% vers le haut
-        if (rand < 0.80f) return Vector2.left;  // 20% gauche
-        if (rand < 1.00f) return Vector2.right; // 20% droite
-        return Vector2.up;
+        if (rand < 0.60f) return Vector2.up;
+        if (rand < 0.80f) return Vector2.left;
+        return Vector2.right;
     }
 
-    // Boucle principale de génération (synchrone) : fait marcher les walkers
-    // jusqu'à atteindre le pourcentage de remplissage souhaité
-    void CreateFloors()
+    // Les walkers creusent des chemins EMPTY dans la grille de WALL
+    void CreatePaths()
     {
-        int maxIterations = MapWidth * MapHeight * 10; // sécurité anti-boucle infinie
+        int maxIterations = MapWidth * MapHeight * 10;
         int iterations = 0;
 
-        while ((float)TileCount / (float)gridHandler.Length < FillPercentage)
+        while ((float)TileCount / gridHandler.Length < FillPercentage)
         {
-            iterations++;
-            if (iterations > maxIterations)
+            if (++iterations > maxIterations)
             {
                 Debug.LogWarning("Génération stoppée : trop d'itérations");
                 break;
@@ -97,15 +101,12 @@ public class WalkerGenerator : MonoBehaviour
 
             foreach (WalkerObject curWalker in Walkers)
             {
-                Vector3Int curPos = new Vector3Int(
-                    (int)curWalker.Position.x,
-                    (int)curWalker.Position.y,
-                    0
-                );
+                int x = (int)curWalker.Position.x;
+                int y = (int)curWalker.Position.y;
 
-                if (gridHandler[curPos.x, curPos.y] != Grid.FLOOR)
+                if (gridHandler[x, y] != Grid.EMPTY)
                 {
-                    gridHandler[curPos.x, curPos.y] = Grid.FLOOR;
+                    gridHandler[x, y] = Grid.EMPTY;
                     TileCount++;
                 }
             }
@@ -117,7 +118,7 @@ public class WalkerGenerator : MonoBehaviour
         }
     }
 
-    // Place toutes les tuiles en une seule passe après la génération
+    // Rendu : place les murs là où c'est WALL, rien là où c'est EMPTY
     void RenderMap()
     {
         for (int x = 0; x < MapWidth; x++)
@@ -125,16 +126,24 @@ public class WalkerGenerator : MonoBehaviour
             for (int y = 0; y < MapHeight; y++)
             {
                 Vector3Int pos = new Vector3Int(x, y, 0);
-                if (gridHandler[x, y] == Grid.FLOOR)
-                    tileMap.SetTile(pos, Floor);
+
+                if (gridHandler[x, y] == Grid.WALL)
+                {
+                    tilemapWalls.SetTile(pos, Wall);
+                }
                 else
-                    tileMap.SetTile(pos, Wall);
+                {
+                    // Tile de fond optionnelle sur les cases vides
+                    if (Background != null && tilemapBackground != null)
+                        tilemapBackground.SetTile(pos, Background);
+                }
             }
         }
+
+        // Force le recalcul du Composite Collider
+        Physics2D.SyncTransforms();
     }
 
-    // Supprime aléatoirement un walker s'il y en a plusieurs,
-    // pour éviter que la map soit trop ouverte
     void ChanceToRemove()
     {
         int updatedCount = Walkers.Count;
@@ -148,8 +157,6 @@ public class WalkerGenerator : MonoBehaviour
         }
     }
 
-    // Change aléatoirement la direction d'un walker
-    // pour créer des couloirs qui ne vont pas tous dans la même direction
     void ChanceToRedirect()
     {
         for (int i = 0; i < Walkers.Count; i++)
@@ -163,8 +170,6 @@ public class WalkerGenerator : MonoBehaviour
         }
     }
 
-    // Crée aléatoirement un nouveau walker à la position d'un walker existant,
-    // dans la limite de MaximumWalkers, pour élargir certaines zones
     void ChanceToCreate()
     {
         int updatedCount = Walkers.Count;
@@ -172,30 +177,28 @@ public class WalkerGenerator : MonoBehaviour
         {
             if (UnityEngine.Random.value < Walkers[i].ChanceToChange && Walkers.Count < MaximumWalkers)
             {
-                Vector2 newDirection = GetDirection();
-                Vector2 newPosition = Walkers[i].Position;
-                WalkerObject newWalker = new WalkerObject(newPosition, newDirection, 0.5f);
+                WalkerObject newWalker = new WalkerObject(
+                    Walkers[i].Position,
+                    GetDirection(),
+                    0.5f
+                );
                 Walkers.Add(newWalker);
             }
         }
     }
 
-    // Déplace chaque walker d'une case dans sa direction,
-    // en le maintenant dans les limites de la grille avec une marge
-    // de 2 tuiles sur les côtés (pour garantir des murs latéraux)
     void UpdatePosition()
     {
         for (int i = 0; i < Walkers.Count; i++)
         {
-            WalkerObject FoundWalker = Walkers[i];
-            FoundWalker.Position += FoundWalker.Direction;
+            WalkerObject w = Walkers[i];
+            w.Position += w.Direction;
 
-            // 2 tuiles de marge sur les côtés gauche/droit = murs latéraux garantis
-            FoundWalker.Position.x = Mathf.Clamp(FoundWalker.Position.x, 2, gridHandler.GetLength(0) - 3);
-            // 1 tuile de marge en haut/bas
-            FoundWalker.Position.y = Mathf.Clamp(FoundWalker.Position.y, 1, gridHandler.GetLength(1) - 2);
+            // 2 tuiles de marge sur les côtés = murs latéraux garantis
+            w.Position.x = Mathf.Clamp(w.Position.x, 2, gridHandler.GetLength(0) - 3);
+            w.Position.y = Mathf.Clamp(w.Position.y, 1, gridHandler.GetLength(1) - 2);
 
-            Walkers[i] = FoundWalker;
+            Walkers[i] = w;
         }
     }
 }

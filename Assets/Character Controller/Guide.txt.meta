@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 247848a064bab324facd63b99f965805
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 201457
+  packageName: Full Character Controller - 2D Platformer
+  packageVersion: 1.0
+  assetPath: Assets/Character Controller/Guide.txt
+  uploadId: 448806
