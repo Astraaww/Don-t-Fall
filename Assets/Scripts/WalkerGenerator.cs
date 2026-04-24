@@ -4,6 +4,9 @@ using UnityEngine.Tilemaps;
 
 public class WalkerGenerator : MonoBehaviour
 {
+
+    public GameObject dashablePrefab;  // à brancher dans l'Inspector
+    public float dashableSpawnChance = 0.05f; // 5% de chance par case EMPTY
     public enum Grid
     {
         EMPTY,  // chemin vide — le joueur peut passer
@@ -51,6 +54,9 @@ public class WalkerGenerator : MonoBehaviour
 
         CreatePaths();
         RenderMap();
+        CreatePaths();
+        RenderMap();
+        SpawnDashables();
 
         // Spawn du joueur sur la première case EMPTY
         Vector2 spawnPos = FindSpawnPoint();
@@ -199,6 +205,35 @@ public class WalkerGenerator : MonoBehaviour
             w.Position.y = Mathf.Clamp(w.Position.y, 1, gridHandler.GetLength(1) - 2);
 
             Walkers[i] = w;
+        }
+    }
+
+    void SpawnDashables()
+    {
+        for (int x = 1; x < MapWidth - 1; x++)
+        {
+            for (int y = 1; y < MapHeight - 1; y++)
+            {
+                if (gridHandler[x, y] != Grid.EMPTY) continue;
+
+                // Vérifie qu'il y a au moins un mur adjacent
+                bool hasWallNeighbor =
+                    gridHandler[x + 1, y] == Grid.WALL ||
+                    gridHandler[x - 1, y] == Grid.WALL ||
+                    gridHandler[x, y + 1] == Grid.WALL ||
+                    gridHandler[x, y - 1] == Grid.WALL;
+
+                if (!hasWallNeighbor) continue;
+
+                // Pas trop proche du spawn du joueur
+                if (y < 5) continue;
+
+                if (UnityEngine.Random.value < dashableSpawnChance)
+                {
+                    Vector3 pos = new Vector3(x + 0.5f, y + 0.5f, 0);
+                    Instantiate(dashablePrefab, pos, Quaternion.identity);
+                }
+            }
         }
     }
 }

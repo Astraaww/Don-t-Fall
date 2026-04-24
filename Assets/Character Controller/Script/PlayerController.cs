@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
 
     float MoveDirection;
     int currentJumps = 0;
- 
+
     Rigidbody2D rb;
     BoxCollider2D col; // Change It If You Use Something Else That Box Collider, Make Sure You Update The Reference In Start Function
 
@@ -71,6 +71,8 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(Dash());
             }
         }
+
+        DashUpdate();
     }
     void FixedUpdate()
     {
@@ -81,7 +83,7 @@ public class PlayerController : MonoBehaviour
 
     void Move()
     {
-        if (canMove && !isWallJumping)
+        if (canMove && !isWallJumping && !isDashing && !isPerformingDash)
         {
             rb.linearVelocity = new Vector2(
                 MoveDirection * Speed * Time.fixedDeltaTime,
@@ -94,16 +96,16 @@ public class PlayerController : MonoBehaviour
         // Make sure you set the ground layer to the ground
         RaycastHit2D ray;
 
-         if (transform.rotation.y == 0)
-         {
+        if (transform.rotation.y == 0)
+        {
             Vector2 position = new Vector2(col.bounds.center.x - col.bounds.extents.x, col.bounds.min.y);
-             ray = Physics2D.Raycast(position, Vector2.down, col.bounds.extents.y + 0.2f, groundLayer);
-         }
-         else
-         {
+            ray = Physics2D.Raycast(position, Vector2.down, col.bounds.extents.y + 0.2f, groundLayer);
+        }
+        else
+        {
             Vector2 position = new Vector2(col.bounds.center.x + col.bounds.extents.x, col.bounds.min.y);
             ray = Physics2D.Raycast(position, Vector2.down, col.bounds.extents.y + 0.2f, groundLayer);
-         }       
+        }
 
         if (ray.collider != null)
         {
@@ -126,7 +128,7 @@ public class PlayerController : MonoBehaviour
             if (currentJumps >= AirJumps)
                 return;
 
-            currentJumps ++;
+            currentJumps++;
             rb.linearVelocity = Vector2.up * JumpPower;
         }
 
@@ -141,7 +143,7 @@ public class PlayerController : MonoBehaviour
             if (MoveDirection == 1)
             {
                 transform.rotation = new Quaternion(0, 0, 0, 0);
-                
+
             }
             else
             {
@@ -156,15 +158,15 @@ public class PlayerController : MonoBehaviour
     IEnumerator Dash()
     {
         canDash = false;
-        float originalSpeed = Speed; 
-       
+        float originalSpeed = Speed;
+
         Speed *= DashPower;
         rb.gravityScale = 0f; // You can delete this line if you don't want the player to freez in the air when dashing
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
 
         //  You Can Add A Camera Shake Function here
 
-        yield return new WaitForSeconds(DashDuration); 
+        yield return new WaitForSeconds(DashDuration);
 
         rb.gravityScale = Gravity;
         Speed = originalSpeed;
@@ -183,7 +185,7 @@ public class PlayerController : MonoBehaviour
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
         Vector2 myPos = transform.position;
 
-        Vector2 dir = mousePos - myPos;  
+        Vector2 dir = mousePos - myPos;
 
         if (dir.x < 0)
         {
@@ -221,6 +223,16 @@ public class PlayerController : MonoBehaviour
     private float wallJumpDuration = 0.3f;
     private Vector2 wallJumpPower = new Vector2(6f, 16f);
 
+    [Header("Dash")]
+    public float dashRadius = 3f;
+    public float dashForce = 20f;
+    public float slowMotionScale = 0.2f;
+    public GameObject dashArrow;
+
+    private bool isDashing = false;
+    private bool isPerformingDash = false;
+    private GameObject dashTarget = null;
+
     private bool IsWalledLeft()
     {
         Vector2 origin = new Vector2(col.bounds.min.x, col.bounds.center.y);
@@ -254,7 +266,6 @@ public class PlayerController : MonoBehaviour
         if (!isWallSliding) return;
         if (!Input.GetKeyDown(KeyCode.Space)) return;
 
-        // Direction opposée au mur touché
         float direction = IsWalledRight() ? -1f : 1f;
 
         isWallJumping = true;
@@ -268,4 +279,100 @@ public class PlayerController : MonoBehaviour
         isWallJumping = false;
     }
 
+    //______________________________________________________________
+    //______________________________DASH____________________________
+    //______________________________________________________________
+
+    private void DashDetected()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, dashRadius);
+
+        if (dashTarget != null)
+            dashTarget.GetComponent<DashableObject>()?.Highlight(false);
+
+        dashTarget = null;
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit.CompareTag("Dashable"))
+            {
+                dashTarget = hit.gameObject;
+                dashTarget.GetComponent<DashableObject>()?.Highlight(true);
+                break;
+            }
+        }
+    }
+
+    private void DashUpdate()
+    {
+        DashDetected();
+
+        if (Input.GetKeyDown(KeyCode.E) && dashTarget != null)
+        {
+            StartDash();
+        }
+
+        if (isDashing)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.gravityScale = 0f;
+
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 direction = (mousePos - (Vector2)transform.position).normalized;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            dashArrow.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+            if (Input.GetKeyUp(KeyCode.E))
+            {
+                Vector2 finalDirection = (mousePos - (Vector2)transform.position).normalized;
+                EndDash(finalDirection);
+            }
+        }
+    }
+
+    private void StartDash()
+    {
+        isDashing = true;
+        Time.timeScale = slowMotionScale;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+        rb.gravityScale = 0f;
+        dashArrow.SetActive(true);
+
+        GameObject[] dashables = GameObject.FindGameObjectsWithTag("Dashable");
+        foreach (GameObject dashable in dashables)
+        {
+            Collider2D dashableCol = dashable.GetComponent<Collider2D>();
+            if (dashableCol != null)
+                Physics2D.IgnoreCollision(col, dashableCol, true);
+        }
+    }
+
+    private void EndDash(Vector2 direction)
+    {
+        isDashing = false;
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
+        rb.gravityScale = 0f;
+        dashArrow.SetActive(false);
+
+        StartCoroutine(PerformDash(direction));
+    }
+
+    private IEnumerator PerformDash(Vector2 direction)
+    {
+        isPerformingDash = true;
+        float dashDuration = 0.2f;
+        float timer = 0f;
+
+        while (timer < dashDuration)
+        {
+            rb.linearVelocity = direction * dashForce;
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        rb.gravityScale = Gravity;
+        rb.linearVelocity = Vector2.zero;
+        isPerformingDash = false;
+    }
 }

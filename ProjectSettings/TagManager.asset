@@ -5,15 +5,16 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ground
+  - Dashable
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - Ground
-  - 
+  - Dashable
   - 
   - 
   - 
