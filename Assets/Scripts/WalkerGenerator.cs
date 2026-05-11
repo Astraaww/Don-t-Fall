@@ -4,85 +4,211 @@ using UnityEngine.Tilemaps;
 
 public class WalkerGenerator : MonoBehaviour
 {
+    [Header("Prefabs & Tiles")]
+    public GameObject dashablePrefab;
+    public float dashableSpawnChance = 0.05f;
+    public RuleTile Wall;
+    public TileBase Background;
 
-    public GameObject dashablePrefab;  // à brancher dans l'Inspector
-    public float dashableSpawnChance = 0.05f; // 5% de chance par case EMPTY
-    public enum Grid
-    {
-        EMPTY,  // chemin vide — le joueur peut passer
-        WALL,   // plateforme solide
-    }
+    [Header("Tilemaps")]
+    public Tilemap tilemapWalls;
+    public Tilemap tilemapBackground;
 
-    public Grid[,] gridHandler;
-    public List<WalkerObject> Walkers;
-
-    public Tilemap tilemapWalls;       // Tilemap des murs (avec Collider)
-    public Tilemap tilemapBackground;  // Tilemap de fond (sans Collider, optionnel)
-
-    public RuleTile Wall;              // Ton Rule Tile avec autotiling
-    public TileBase Background;        // Tile de fond (simple Tile, peut être null)
-
+    [Header("Map Settings")]
     public int MapWidth = 10;
     public int MapHeight = 60;
     public int MaximumWalkers = 3;
-    public int TileCount = default;
-    public float FillPercentage = 0.20f; // % de cases EMPTY (chemins)
+    public float FillPercentage = 0.20f;
 
+    [Header("Infinite Generation")]
     public Transform playerTransform;
+    public float GenerateAheadThreshold = 0.7f;
+
+    private int nextChunkYOffset = 0;
+    private List<int> lastChunkTopOpenings = new List<int>();
+
+    public enum Grid { EMPTY, WALL }
 
     void Start()
     {
-        InitializeGrid();
+        GenerateChunk(0);
+        GenerateChunk(MapHeight);
+        nextChunkYOffset = MapHeight * 2;
+
+        playerTransform.position = new Vector3(MapWidth / 2f + 0.5f, 2.5f, 0);
+        Camera.main.transform.position = new Vector3(
+            MapWidth / 2f, 2f,
+            Camera.main.transform.position.z);
     }
 
-    void InitializeGrid()
+    void Update()
     {
-        gridHandler = new Grid[MapWidth, MapHeight];
+        float generateTriggerY = nextChunkYOffset - MapHeight * (1f - GenerateAheadThreshold);
+
+        if (playerTransform.position.y > generateTriggerY)
+        {
+            ClearChunkBelow(nextChunkYOffset - MapHeight * 2);
+            GenerateChunk(nextChunkYOffset);
+            nextChunkYOffset += MapHeight;
+        }
+    }
+
+    // ─── Génération d'un chunk ────────────────────────────────────────────────
+
+    void GenerateChunk(int yOffset)
+    {
+        Grid[,] grid = new Grid[MapWidth, MapHeight];
 
         for (int x = 0; x < MapWidth; x++)
             for (int y = 0; y < MapHeight; y++)
-                gridHandler[x, y] = Grid.WALL;
+                grid[x, y] = Grid.WALL;
 
-        Walkers = new List<WalkerObject>();
+        var walkers = new List<WalkerObject>();
 
-        Vector2 startPos = new Vector2(MapWidth / 2, 2);
-
-        WalkerObject curWalker = new WalkerObject(startPos, GetDirection(), 0.5f);
-        gridHandler[(int)startPos.x, (int)startPos.y] = Grid.EMPTY;
-        TileCount++;
-        Walkers.Add(curWalker);
-
-        CreatePaths();
-        RenderMap();
-        CreatePaths();
-        RenderMap();
-        SpawnDashables();
-
-        // Spawn du joueur sur la première case EMPTY
-        Vector2 spawnPos = FindSpawnPoint();
-        playerTransform.position = new Vector3(spawnPos.x + 0.5f, spawnPos.y + 0.5f, 0);
-
-        // Caméra sur le point de spawn
-        Camera.main.transform.position = new Vector3(
-            spawnPos.x,
-            spawnPos.y,
-            Camera.main.transform.position.z
-        );
-    }
-
-    // Cherche la première case EMPTY en partant du bas au centre
-    Vector2 FindSpawnPoint()
-    {
-        int centerX = MapWidth / 2;
-        for (int y = 0; y < MapHeight; y++)
+        if (lastChunkTopOpenings.Count > 0)
         {
-            if (gridHandler[centerX, y] == Grid.EMPTY)
-                return new Vector2(centerX, y);
+            foreach (int openX in lastChunkTopOpenings)
+            {
+                grid[openX, 0] = Grid.EMPTY;
+                grid[openX, 1] = Grid.EMPTY;
+                grid[openX, 2] = Grid.EMPTY;
+                walkers.Add(new WalkerObject(
+                    new Vector2(openX, 2), GetDirection(), 0.5f));
+            }
         }
-        return new Vector2(centerX, 2); // fallback
+        else
+        {
+            Vector2 startPos = new Vector2(MapWidth / 2, 2);
+            grid[(int)startPos.x, (int)startPos.y] = Grid.EMPTY;
+            walkers.Add(new WalkerObject(startPos, GetDirection(), 0.5f));
+        }
+
+        int tileCount = CountEmpty(grid);
+        CreatePaths(grid, walkers, tileCount);
+
+        // Force la jonction après génération
+        if (lastChunkTopOpenings.Count > 0)
+        {
+            foreach (int openX in lastChunkTopOpenings)
+            {
+                grid[openX, 0] = Grid.EMPTY;
+                grid[openX, 1] = Grid.EMPTY;
+                grid[openX, 2] = Grid.EMPTY;
+
+                // Perce la dernière ligne du chunk précédent sur la Tilemap
+                int prevChunkTopY = yOffset - 1;
+                if (prevChunkTopY >= 0)
+                {
+                    tilemapWalls.SetTile(new Vector3Int(openX, prevChunkTopY, 0), null);
+
+                    if (tilemapBackground != null)
+                        tilemapBackground.SetTile(new Vector3Int(openX, prevChunkTopY, 0), Background);
+                }
+            }
+        }
+
+        // Mémorise les ouvertures en haut pour le prochain chunk
+        lastChunkTopOpenings.Clear();
+        for (int x = 0; x < MapWidth; x++)
+            if (grid[x, MapHeight - 1] == Grid.EMPTY || grid[x, MapHeight - 2] == Grid.EMPTY)
+                lastChunkTopOpenings.Add(x);
+
+        // Garantit au moins une ouverture en haut
+        if (lastChunkTopOpenings.Count == 0)
+        {
+            int centerX = MapWidth / 2;
+            grid[centerX, MapHeight - 1] = Grid.EMPTY;
+            grid[centerX, MapHeight - 2] = Grid.EMPTY;
+            grid[centerX, MapHeight - 3] = Grid.EMPTY;
+            lastChunkTopOpenings.Add(centerX);
+        }
+
+        RenderChunk(grid, yOffset);
+        SpawnDashables(grid, yOffset);
     }
 
-    // Retourne une direction biaisée vers le haut (60%)
+    int CountEmpty(Grid[,] grid)
+    {
+        int count = 0;
+        for (int x = 0; x < MapWidth; x++)
+            for (int y = 0; y < MapHeight; y++)
+                if (grid[x, y] == Grid.EMPTY) count++;
+        return count;
+    }
+
+    void CreatePaths(Grid[,] grid, List<WalkerObject> walkers, int tileCount)
+    {
+        int maxIterations = MapWidth * MapHeight * 10;
+        int iterations = 0;
+        int totalCells = grid.Length;
+
+        while ((float)tileCount / totalCells < FillPercentage)
+        {
+            if (++iterations > maxIterations)
+            {
+                Debug.LogWarning("Génération stoppée : trop d'itérations");
+                break;
+            }
+
+            foreach (var w in walkers)
+            {
+                int x = (int)w.Position.x;
+                int y = (int)w.Position.y;
+                if (grid[x, y] != Grid.EMPTY)
+                {
+                    grid[x, y] = Grid.EMPTY;
+                    tileCount++;
+                }
+            }
+
+            ChanceToRemove(walkers);
+            ChanceToRedirect(walkers);
+            ChanceToCreate(walkers);
+            UpdatePosition(walkers, grid);
+        }
+    }
+
+    // ─── Rendu ───────────────────────────────────────────────────────────────
+
+    void RenderChunk(Grid[,] grid, int yOffset)
+    {
+        for (int x = 0; x < MapWidth; x++)
+        {
+            for (int y = 0; y < MapHeight; y++)
+            {
+                Vector3Int pos = new Vector3Int(x, y + yOffset, 0);
+
+                if (grid[x, y] == Grid.WALL)
+                {
+                    tilemapWalls.SetTile(pos, Wall);
+                }
+                else if (Background != null && tilemapBackground != null)
+                {
+                    tilemapBackground.SetTile(pos, Background);
+                }
+            }
+        }
+        Physics2D.SyncTransforms();
+    }
+
+    void ClearChunkBelow(int belowY)
+    {
+        if (belowY <= 0) return;
+
+        for (int x = 0; x < MapWidth; x++)
+        {
+            for (int y = 0; y < belowY; y++)
+            {
+                Vector3Int pos = new Vector3Int(x, y, 0);
+                tilemapWalls.SetTile(pos, null);
+                if (tilemapBackground != null)
+                    tilemapBackground.SetTile(pos, null);
+            }
+        }
+    }
+
+    // ─── Walker helpers ───────────────────────────────────────────────────────
+
     Vector2 GetDirection()
     {
         float rand = UnityEngine.Random.value;
@@ -91,148 +217,75 @@ public class WalkerGenerator : MonoBehaviour
         return Vector2.right;
     }
 
-    // Les walkers creusent des chemins EMPTY dans la grille de WALL
-    void CreatePaths()
+    void ChanceToRemove(List<WalkerObject> walkers)
     {
-        int maxIterations = MapWidth * MapHeight * 10;
-        int iterations = 0;
-
-        while ((float)TileCount / gridHandler.Length < FillPercentage)
+        for (int i = 0; i < walkers.Count; i++)
         {
-            if (++iterations > maxIterations)
+            if (UnityEngine.Random.value < walkers[i].ChanceToChange && walkers.Count > 1)
             {
-                Debug.LogWarning("Génération stoppée : trop d'itérations");
-                break;
-            }
-
-            foreach (WalkerObject curWalker in Walkers)
-            {
-                int x = (int)curWalker.Position.x;
-                int y = (int)curWalker.Position.y;
-
-                if (gridHandler[x, y] != Grid.EMPTY)
-                {
-                    gridHandler[x, y] = Grid.EMPTY;
-                    TileCount++;
-                }
-            }
-
-            ChanceToRemove();
-            ChanceToRedirect();
-            ChanceToCreate();
-            UpdatePosition();
-        }
-    }
-
-    // Rendu : place les murs là où c'est WALL, rien là où c'est EMPTY
-    void RenderMap()
-    {
-        for (int x = 0; x < MapWidth; x++)
-        {
-            for (int y = 0; y < MapHeight; y++)
-            {
-                Vector3Int pos = new Vector3Int(x, y, 0);
-
-                if (gridHandler[x, y] == Grid.WALL)
-                {
-                    tilemapWalls.SetTile(pos, Wall);
-                }
-                else
-                {
-                    // Tile de fond optionnelle sur les cases vides
-                    if (Background != null && tilemapBackground != null)
-                        tilemapBackground.SetTile(pos, Background);
-                }
-            }
-        }
-
-        // Force le recalcul du Composite Collider
-        Physics2D.SyncTransforms();
-    }
-
-    void ChanceToRemove()
-    {
-        int updatedCount = Walkers.Count;
-        for (int i = 0; i < updatedCount; i++)
-        {
-            if (UnityEngine.Random.value < Walkers[i].ChanceToChange && Walkers.Count > 1)
-            {
-                Walkers.RemoveAt(i);
+                walkers.RemoveAt(i);
                 break;
             }
         }
     }
 
-    void ChanceToRedirect()
+    void ChanceToRedirect(List<WalkerObject> walkers)
     {
-        for (int i = 0; i < Walkers.Count; i++)
+        for (int i = 0; i < walkers.Count; i++)
         {
-            if (UnityEngine.Random.value < Walkers[i].ChanceToChange)
+            if (UnityEngine.Random.value < walkers[i].ChanceToChange)
             {
-                WalkerObject curWalker = Walkers[i];
-                curWalker.Direction = GetDirection();
-                Walkers[i] = curWalker;
+                var w = walkers[i];
+                w.Direction = GetDirection();
+                walkers[i] = w;
             }
         }
     }
 
-    void ChanceToCreate()
+    void ChanceToCreate(List<WalkerObject> walkers)
     {
-        int updatedCount = Walkers.Count;
-        for (int i = 0; i < updatedCount; i++)
+        int count = walkers.Count;
+        for (int i = 0; i < count; i++)
         {
-            if (UnityEngine.Random.value < Walkers[i].ChanceToChange && Walkers.Count < MaximumWalkers)
+            if (UnityEngine.Random.value < walkers[i].ChanceToChange
+                && walkers.Count < MaximumWalkers)
             {
-                WalkerObject newWalker = new WalkerObject(
-                    Walkers[i].Position,
-                    GetDirection(),
-                    0.5f
-                );
-                Walkers.Add(newWalker);
+                walkers.Add(new WalkerObject(
+                    walkers[i].Position, GetDirection(), 0.5f));
             }
         }
     }
 
-    void UpdatePosition()
+    void UpdatePosition(List<WalkerObject> walkers, Grid[,] grid)
     {
-        for (int i = 0; i < Walkers.Count; i++)
+        for (int i = 0; i < walkers.Count; i++)
         {
-            WalkerObject w = Walkers[i];
+            var w = walkers[i];
             w.Position += w.Direction;
-
-            // 2 tuiles de marge sur les côtés = murs latéraux garantis
-            w.Position.x = Mathf.Clamp(w.Position.x, 2, gridHandler.GetLength(0) - 3);
-            w.Position.y = Mathf.Clamp(w.Position.y, 1, gridHandler.GetLength(1) - 2);
-
-            Walkers[i] = w;
+            w.Position.x = Mathf.Clamp(w.Position.x, 2, grid.GetLength(0) - 3);
+            w.Position.y = Mathf.Clamp(w.Position.y, 1, grid.GetLength(1) - 2);
+            walkers[i] = w;
         }
     }
 
-    void SpawnDashables()
+    void SpawnDashables(Grid[,] grid, int yOffset)
     {
         for (int x = 1; x < MapWidth - 1; x++)
         {
             for (int y = 1; y < MapHeight - 1; y++)
             {
-                if (gridHandler[x, y] != Grid.EMPTY) continue;
+                if (grid[x, y] != Grid.EMPTY) continue;
 
-                // Vérifie qu'il y a au moins un mur adjacent
-                bool hasWallNeighbor =
-                    gridHandler[x + 1, y] == Grid.WALL ||
-                    gridHandler[x - 1, y] == Grid.WALL ||
-                    gridHandler[x, y + 1] == Grid.WALL ||
-                    gridHandler[x, y - 1] == Grid.WALL;
+                bool hasWall =
+                    grid[x + 1, y] == Grid.WALL || grid[x - 1, y] == Grid.WALL ||
+                    grid[x, y + 1] == Grid.WALL || grid[x, y - 1] == Grid.WALL;
 
-                if (!hasWallNeighbor) continue;
-
-                // Pas trop proche du spawn du joueur
-                if (y < 5) continue;
+                if (!hasWall || y < 5) continue;
 
                 if (UnityEngine.Random.value < dashableSpawnChance)
-                {
-                    Vector3 pos = new Vector3(x + 0.5f, y + 0.5f, 0);
-                    Instantiate(dashablePrefab, pos, Quaternion.identity);
-                }
+                    Instantiate(dashablePrefab,
+                        new Vector3(x + 0.5f, y + yOffset + 0.5f, 0),
+                        Quaternion.identity);
             }
         }
     }

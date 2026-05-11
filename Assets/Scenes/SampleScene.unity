@@ -671,16 +671,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dashablePrefab: {fileID: 8745193134021918494, guid: 94221a1c14e145d48837822a552bed4f, type: 3}
   dashableSpawnChance: 0.05
-  tilemapWalls: {fileID: 825303900}
-  tilemapBackground: {fileID: 1836766004}
   Wall: {fileID: 11400000, guid: f8f0e55077e1bd64ab488db376893a55, type: 2}
   Background: {fileID: 0}
+  tilemapWalls: {fileID: 825303900}
+  tilemapBackground: {fileID: 1836766004}
   MapWidth: 10
-  MapHeight: 200
-  MaximumWalkers: 10
-  TileCount: 0
+  MapHeight: 50
+  MaximumWalkers: 8
   FillPercentage: 2
   playerTransform: {fileID: 1882053333}
+  GenerateAheadThreshold: 0.7
 --- !u!4 &1021402461
 Transform:
   m_ObjectHideFlags: 0
