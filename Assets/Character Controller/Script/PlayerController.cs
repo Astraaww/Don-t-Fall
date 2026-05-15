@@ -6,26 +6,23 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    // PLEASE READ THE GUIDE BEFORE USING THE SCRIPT //
-
     [Header("Movement")]
     public float Speed = 450;
-    public bool RotateToDirection = true; // Rotate To The Movement Direction
-    public bool RotateWithMouseClick = false; // Rotate To The Direction Of The Mouse When Click , Usefull For Attacking
+    public bool RotateToDirection = true;
+    public bool RotateWithMouseClick = false;
 
     [Header("Jumping")]
-    public float JumpPower = 22; // How High The Player Can Jump
-    public float Gravity = 6; // How Fast The Player Will Pulled Down To The Ground, 6 Feels Smooth
-    public int AirJumps = 1; // Max Amount Of Air Jumps, Set It To 0 If You Dont Want To Jump In The Air
-    public LayerMask groundLayer; // The Layers That Represent The Ground, Any Layer That You Want The Player To Be Able To Jump In
+    public float JumpPower = 22;
+    public float Gravity = 6;
+    public int AirJumps = 1;
+    public LayerMask groundLayer;
 
     [Header("Dashing")]
-    public float DashPower = 3; // It Is A Speed Multiplyer, A Value Of 2 - 3 Is Recommended.
-    public float DashDuration = 0.20f; // Duration Of The Dash In Seconds, Recommended 0.20f.
-    public float DashCooldown = 0.5f; // Duration To Be Able To Dash Again.
-    public bool AirDash = true; // Can Dash In Air ?
+    public float DashPower = 3;
+    public float DashDuration = 0.20f;
+    public float DashCooldown = 0.5f;
+    public bool AirDash = true;
 
-    // Private Variables
     bool canMove = true;
     bool canDash = true;
 
@@ -33,10 +30,7 @@ public class PlayerController : MonoBehaviour
     int currentJumps = 0;
 
     Rigidbody2D rb;
-    BoxCollider2D col; // Change It If You Use Something Else That Box Collider, Make Sure You Update The Reference In Start Function
-
-
-    ////// START & UPDATE :
+    BoxCollider2D col;
 
     void Start()
     {
@@ -44,8 +38,8 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<BoxCollider2D>();
         rb.gravityScale = Gravity;
-
     }
+
     void Update()
     {
         MoveDirection = Input.GetAxisRaw("Horizontal");
@@ -54,10 +48,8 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse0))
             RotateToMouse();
 
-        // Gère le wall slide en premier
         WallSlide();
 
-        // Wall jump prioritaire sur le jump normal
         if (isWallSliding)
             TryWallJump();
         else if (Input.GetKeyDown(KeyCode.Space))
@@ -74,12 +66,11 @@ public class PlayerController : MonoBehaviour
 
         DashUpdate();
     }
+
     void FixedUpdate()
     {
         Move();
     }
-
-    ///// MOVEMENT FUNCTIONS :
 
     void Move()
     {
@@ -91,9 +82,9 @@ public class PlayerController : MonoBehaviour
             );
         }
     }
+
     bool InTheGround()
     {
-        // Make sure you set the ground layer to the ground
         RaycastHit2D ray;
 
         if (transform.rotation.y == 0)
@@ -107,18 +98,11 @@ public class PlayerController : MonoBehaviour
             ray = Physics2D.Raycast(position, Vector2.down, col.bounds.extents.y + 0.2f, groundLayer);
         }
 
-        if (ray.collider != null)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return ray.collider != null;
     }
+
     void Jump()
     {
-
         if (InTheGround())
         {
             rb.linearVelocity = Vector2.up * JumpPower;
@@ -131,40 +115,29 @@ public class PlayerController : MonoBehaviour
             currentJumps++;
             rb.linearVelocity = Vector2.up * JumpPower;
         }
-
     }
+
     void RotateToMoveDirection()
     {
-        if (!RotateToDirection)
-            return;
+        if (!RotateToDirection) return;
 
         if (MoveDirection != 0 && canMove)
         {
             if (MoveDirection == 1)
-            {
                 transform.rotation = new Quaternion(0, 0, 0, 0);
-
-            }
             else
-            {
                 transform.rotation = new Quaternion(0, 180, 0, 0);
-            }
         }
     }
 
-    ///// SPECIAL  FUNCTIONS : 
-
-    // Multiply The Speed With Certain Amount For A Certain Duration
     IEnumerator Dash()
     {
         canDash = false;
         float originalSpeed = Speed;
 
         Speed *= DashPower;
-        rb.gravityScale = 0f; // You can delete this line if you don't want the player to freez in the air when dashing
+        rb.gravityScale = 0f;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
-
-        //  You Can Add A Camera Shake Function here
 
         yield return new WaitForSeconds(DashDuration);
 
@@ -176,42 +149,34 @@ public class PlayerController : MonoBehaviour
         canDash = true;
     }
 
-    // Make Player Fasing The Mouse Cursor , Can Be Called On Update , Or When The Player Attacks He Will Turn To The Mouse Direction
     void RotateToMouse()
     {
-        if (!RotateWithMouseClick)
-            return;
+        if (!RotateWithMouseClick) return;
 
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
         Vector2 myPos = transform.position;
-
         Vector2 dir = mousePos - myPos;
 
         if (dir.x < 0)
-        {
             transform.rotation = new Quaternion(0, 180, 0, 0);
-        }
         else
-        {
             transform.rotation = new Quaternion(0, 0, 0, 0);
-        }
     }
 
-    // Reset Jump Counts When Collide With The Ground
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.CompareTag("Ground"))
         {
-            RaycastHit2D ray;
-            ray = Physics2D.Raycast(col.bounds.center, Vector2.down, col.bounds.extents.y + 0.2f, groundLayer);
+            RaycastHit2D ray = Physics2D.Raycast(col.bounds.center, Vector2.down, col.bounds.extents.y + 0.2f, groundLayer);
 
             if (ray.collider != null)
             {
                 currentJumps = 0;
+                currentWallJumps = 0;
             }
-
         }
     }
+
 
     //_____________________________________________________________________________________________________
     //_____________________________________________MES SCRIPTS_____________________________________________
@@ -222,6 +187,10 @@ public class PlayerController : MonoBehaviour
     private float wallSlidingSpeed = 2f;
     private float wallJumpDuration = 0.3f;
     private Vector2 wallJumpPower = new Vector2(6f, 16f);
+    public int maxWallJumps = 1;
+    private int currentWallJumps = 0;
+
+
 
     [Header("Dash")]
     public float dashRadius = 3f;
@@ -265,10 +234,12 @@ public class PlayerController : MonoBehaviour
     {
         if (!isWallSliding) return;
         if (!Input.GetKeyDown(KeyCode.Space)) return;
+        if (currentWallJumps >= maxWallJumps) return;
 
         float direction = IsWalledRight() ? -1f : 1f;
 
         isWallJumping = true;
+        currentWallJumps++;
         rb.linearVelocity = new Vector2(direction * wallJumpPower.x, wallJumpPower.y);
 
         Invoke(nameof(StopWallJumping), wallJumpDuration);
@@ -309,7 +280,9 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.E) && dashTarget != null)
         {
-            StartDash();
+            float distToTarget = Vector2.Distance(transform.position, dashTarget.transform.position);
+            if (distToTarget <= dashRadius)
+                StartDash();
         }
 
         if (isDashing)
@@ -371,8 +344,25 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
 
+        // Reset des compétences comme si on touchait le sol
+        currentJumps = 0;
+        currentWallJumps = 0;
+        canDash = true;
+
         rb.gravityScale = Gravity;
         rb.linearVelocity = Vector2.zero;
         isPerformingDash = false;
+    }
+
+
+    //______________________________________________________________
+    //______________________________DEATH____________________________
+    //______________________________________________________________
+    public void Die()
+    {
+        canMove = false;
+        rb.linearVelocity = Vector2.zero;
+        rb.gravityScale = 0f;
+        enabled = false; // désactive tout le Update
     }
 }
