@@ -119,11 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &140712132 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7696167157940194099, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-  m_PrefabInstance: {fileID: 1474675376}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &239316372
 GameObject:
   m_ObjectHideFlags: 0
@@ -832,7 +827,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 598951412}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 519420033}
+        m_TargetAssemblyTypeName: CameraAutoscrolling, Assembly-CSharp
+        m_MethodName: Restart
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &598951412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1308,7 +1315,7 @@ GameObject:
   - component: {fileID: 1067192374}
   - component: {fileID: 1067192373}
   m_Layer: 5
-  m_Name: 'Canvas '
+  m_Name: ' Canvas'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1512,6 +1519,7 @@ GameObject:
   - component: {fileID: 1423349157}
   - component: {fileID: 1423349156}
   - component: {fileID: 1423349155}
+  - component: {fileID: 1423349158}
   m_Layer: 5
   m_Name: main menu
   m_TagString: Untagged
@@ -1582,7 +1590,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1423349156}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1423349158}
+        m_TargetAssemblyTypeName: SceneLoader, Assembly-CSharp
+        m_MethodName: LoadMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1423349156
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1621,6 +1641,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1423349153}
   m_CullTransparentMesh: 1
+--- !u!114 &1423349158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1423349153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7b684c6abbb07343b6d3c69f7a1f142, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1474675376
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1629,77 +1661,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2926011437989138741, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: m_Layer
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 6839184967060488384, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: m_Layer
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7353434164134218660, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: m_Layer
-      value: 3
-      objectReference: {fileID: 0}
+    - target: {fileID: 1556923135931911184, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
+      propertyPath: redOverlay
+      value: 
+      objectReference: {fileID: 2028028479}
     - target: {fileID: 7696167157940194099, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194099, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: m_Layer
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194100, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: Speed
-      value: 200
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194100, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: DashPower
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194100, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: JumpPower
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194100, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: dashArrow
-      value: 
-      objectReference: {fileID: 1474675377}
-    - target: {fileID: 7696167157940194100, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: dashForce
-      value: 30
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194100, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194100, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: dashRadius
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194100, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: maxWallJumps
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194100, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: slowMotionScale
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194100, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: RotateWithMouseClick
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194104, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194104, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7696167157940194104, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 7696167157940194104, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1741,23 +1709,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7696167159181947817, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      propertyPath: m_Layer
-      value: 3
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7696167157940194099, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1882053338}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
---- !u!1 &1474675377 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7353434164134218660, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
-  m_PrefabInstance: {fileID: 1474675376}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1762307974
 GameObject:
   m_ObjectHideFlags: 0
@@ -2022,20 +1978,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7696167157940194104, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
   m_PrefabInstance: {fileID: 1474675376}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1882053338
+--- !u!114 &1882053338 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 1556923135931911184, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
+  m_PrefabInstance: {fileID: 1474675376}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 140712132}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed8b5f4e7ebf8f24c86ac65c8dfd9091, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  redOverlay: {fileID: 2028028479}
-  blinkSpeed: 3
 --- !u!1 &2028028477
 GameObject:
   m_ObjectHideFlags: 0

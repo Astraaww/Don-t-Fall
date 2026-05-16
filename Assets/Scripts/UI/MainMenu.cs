@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -6,19 +7,26 @@ public class MainMenu : MonoBehaviour
     public AudioSource source;
     public AudioClip clickSound;
 
-    //public void PlayGame()
-    //{
-    //    //source.clip = clickSound;
-    //    //source.Play();
-    //    Invoke("LoadMain", clickSound.length);
-    //}
+    public TextMeshProUGUI controlsText;
 
-    //public void QuitGame()
-    //{
-    //    //source.clip = clickSound;
-    //    //source.Play();
-    //    Invoke("Quit", clickSound.length);
-    //}
+    private void Start()
+    {
+        controlsText.enabled = false;
+    }
+
+    public void PlayGame()
+    {
+        source.clip = clickSound;
+        source.Play();
+        Invoke("LoadMain", clickSound.length);
+    }
+
+    public void QuitGame()
+    {
+        source.clip = clickSound;
+        source.Play();
+        Invoke("Quit", clickSound.length);
+    }
 
     public void LoadMain()
     {
@@ -29,5 +37,12 @@ public class MainMenu : MonoBehaviour
     {
         Application.Quit();
         Debug.Log("Quit");
+    }
+
+    public void ToggleControls()
+    {
+        source.clip = clickSound;
+        source.Play();
+        controlsText.enabled = !controlsText.enabled;
     }
 }

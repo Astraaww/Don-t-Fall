@@ -289,4 +289,30 @@ public class WalkerGenerator : MonoBehaviour
             }
         }
     }
+
+    public void ResetAndRegenerate()
+    {
+        // 1. Nettoie toutes les tilemaps
+        tilemapWalls.ClearAllTiles();
+        if (tilemapBackground != null)
+            tilemapBackground.ClearAllTiles();
+
+        // 2. Détruit tous les dashables existants
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Dashable"))
+            Destroy(obj);
+
+        // 3. Réinitialise l'état interne
+        nextChunkYOffset = 0;
+        lastChunkTopOpenings.Clear();
+
+        // 4. Régénère comme dans Start()
+        GenerateChunk(0);
+        GenerateChunk(MapHeight);
+        nextChunkYOffset = MapHeight * 2;
+
+        playerTransform.position = new Vector3(MapWidth / 2f + 0.5f, 2.5f, 0);
+        Camera.main.transform.position = new Vector3(
+            MapWidth / 2f, 2f,
+            Camera.main.transform.position.z);
+    }
 }

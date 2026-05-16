@@ -9,6 +9,9 @@ public class ButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private Color originalColor = Color.grey;
     private TextMeshProUGUI tmp;
 
+    public AudioSource source;
+    public AudioClip HoverSound;
+
     private void Awake()
     {
         tmp = GetComponentInChildren<TextMeshProUGUI>();
@@ -18,6 +21,9 @@ public class ButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public void OnPointerEnter(PointerEventData eventData)
     {
         tmp.color = hoverColor;
+        source.clip = HoverSound;
+        source.Play();
+
     }
 
     public void OnPointerExit(PointerEventData eventData)

@@ -365,4 +365,46 @@ public class PlayerController : MonoBehaviour
         rb.gravityScale = 0f;
         enabled = false; // désactive tout le Update
     }
+
+    //______________________________________________________________
+    //___________________________RESPAWN____________________________
+    //______________________________________________________________
+
+
+    public void Respawn()
+    {
+        // Réactive le script
+        enabled = true;
+        canMove = true;
+        canDash = true;
+
+        // Reset des sauts et wall jumps
+        currentJumps = 0;
+        currentWallJumps = 0;
+
+        // Reset des états de dash
+        isDashing = false;
+        isPerformingDash = false;
+        dashTarget = null;
+        dashArrow.SetActive(false);
+
+        // Reset des états de wall jump
+        isWallSliding = false;
+        isWallJumping = false;
+
+        // Reset du Time.timeScale au cas où on meurt pendant un dash
+        Time.timeScale = 1f;
+        Time.fixedDeltaTime = 0.02f;
+
+        // Reset physique
+        rb.gravityScale = Gravity;
+        rb.linearVelocity = Vector2.zero;
+
+        // Replace le joueur en bas de la map
+        transform.position = new Vector3(
+            GameObject.FindFirstObjectByType<WalkerGenerator>().MapWidth / 2f + 0.5f,
+            2.5f,
+            0
+        );
+    }
 }

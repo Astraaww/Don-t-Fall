@@ -24,6 +24,11 @@ public class DeathTextEffect : MonoBehaviour
         fullText = text.text;
         StopAllCoroutines();
         text.maxVisibleCharacters = 0;
+
+        // Remet les boutons en hidden avant de commencer
+        restartButton.SetActive(false);
+        mainMenuButton.SetActive(false);
+
         StartCoroutine(TypeText());
     }
 

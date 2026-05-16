@@ -59,4 +59,21 @@ public class CameraAutoscrolling : MonoBehaviour
         deathCanvas.gameObject.SetActive(true);
         deathTextEffect.StartEffect();
     }
+
+    public void Restart()
+    {
+        // Réinitialise la caméra
+        isDead = false;
+        scrollSpeed = initialScrollSpeed;
+        outOfScreenTimer = 0f;
+
+        // Régénère la map
+        Object.FindFirstObjectByType<WalkerGenerator>().ResetAndRegenerate();
+
+        // Cache l'UI
+        deathCanvas.gameObject.SetActive(false);
+
+        // Redonne les contrôles au joueur
+        target.GetComponent<PlayerController>()?.Respawn();
+    }
 }
