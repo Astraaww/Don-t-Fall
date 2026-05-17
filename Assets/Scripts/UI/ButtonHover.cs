@@ -30,4 +30,11 @@ public class ButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         tmp.color = originalColor;
     }
+
+    private void OnDisable()
+    {
+        if (tmp != null)
+            tmp.color = originalColor;
+    }
+
 }

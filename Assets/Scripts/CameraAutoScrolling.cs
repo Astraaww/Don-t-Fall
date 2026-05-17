@@ -1,4 +1,7 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
 
 public class CameraAutoscrolling : MonoBehaviour
 {
@@ -10,17 +13,57 @@ public class CameraAutoscrolling : MonoBehaviour
     public DeathTextEffect deathTextEffect;
     public DangerBlink dangerBlink;
     public float deathDelay = 1f;
+    public Image overlayImage;
+    public TextMeshProUGUI titleText;
+    public TextIntroEffect titleTextEffect;
+    public bool isIntro = true;
+    public bool isDead = false;
 
     private float scrollSpeed;
     private Camera cam;
-    private bool isDead = false;
     private float outOfScreenTimer = 0f;
+    
 
     void Start()
     {
         cam = GetComponent<Camera>();
         deathCanvas.gameObject.SetActive(false);
         scrollSpeed = initialScrollSpeed;
+
+        Cursor.visible = false;
+
+        // Bloque le joueur pendant l'intro
+        target.GetComponent<PlayerController>()?.Die();
+
+        StartCoroutine(IntroSequence());
+    }
+
+    IEnumerator IntroSequence()
+    {
+        int mapWidth = Object.FindFirstObjectByType<WalkerGenerator>().MapWidth;
+        Vector3 startCamPos = new Vector3(mapWidth / 2f, -20f, transform.position.z);
+        Vector3 targetCamPos = new Vector3(mapWidth / 2f, target.position.y, transform.position.z);
+        transform.position = startCamPos;
+        float duration = 4f;
+        float timer = 0f;
+        bool textStarted = false;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            transform.position = Vector3.Lerp(startCamPos, targetCamPos, timer / duration);
+            if (!textStarted && timer / duration >= 0.3f)
+            {
+                textStarted = true;
+                titleTextEffect.gameObject.SetActive(true);
+                titleTextEffect.StartEffect(null);
+            }
+            yield return null;
+        }
+
+        isIntro = false;
+        target.GetComponent<PlayerController>()?.Respawn();
+        titleTextEffect.gameObject.SetActive(false);
     }
 
     void LateUpdate()
@@ -58,6 +101,11 @@ public class CameraAutoscrolling : MonoBehaviour
         target.GetComponent<PlayerController>()?.Die();
         deathCanvas.gameObject.SetActive(true);
         deathTextEffect.StartEffect();
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        overlayImage.gameObject.SetActive(true);
     }
 
     public void Restart()
@@ -75,5 +123,8 @@ public class CameraAutoscrolling : MonoBehaviour
 
         // Redonne les contrôles au joueur
         target.GetComponent<PlayerController>()?.Respawn();
+
+        Cursor.visible = false;
+        overlayImage.gameObject.SetActive(false);
     }
 }

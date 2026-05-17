@@ -32,12 +32,16 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     BoxCollider2D col;
 
-    void Start()
+    void Awake()
     {
-        canMove = true;
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<BoxCollider2D>();
         rb.gravityScale = Gravity;
+    }
+
+    void Start()
+    {
+        canMove = true;
     }
 
     void Update()
@@ -306,6 +310,7 @@ public class PlayerController : MonoBehaviour
     private void StartDash()
     {
         isDashing = true;
+        Cursor.visible = true;
         Time.timeScale = slowMotionScale;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
         rb.gravityScale = 0f;
@@ -323,6 +328,7 @@ public class PlayerController : MonoBehaviour
     private void EndDash(Vector2 direction)
     {
         isDashing = false;
+        Cursor.visible = false;
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
         rb.gravityScale = 0f;
@@ -363,7 +369,7 @@ public class PlayerController : MonoBehaviour
         canMove = false;
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 0f;
-        enabled = false; // désactive tout le Update
+        enabled = false;
     }
 
     //______________________________________________________________
