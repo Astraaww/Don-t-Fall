@@ -18,23 +18,26 @@ public class CameraAutoscrolling : MonoBehaviour
     public TextIntroEffect titleTextEffect;
     public bool isIntro = true;
     public bool isDead = false;
+    public AudioSource mainMusicSource;
+    public float musicFadeInDuration = 4f;
 
+    private float targetMusicVolume = 0.2f;
     private float scrollSpeed;
     private Camera cam;
     private float outOfScreenTimer = 0f;
-    
+    private Coroutine musicFadeCoroutine;
 
     void Start()
     {
         cam = GetComponent<Camera>();
         deathCanvas.gameObject.SetActive(false);
         scrollSpeed = initialScrollSpeed;
-
         Cursor.visible = false;
 
-        // Bloque le joueur pendant l'intro
-        target.GetComponent<PlayerController>()?.Die();
+        mainMusicSource.volume = 0f;
+        mainMusicSource.Play();
 
+        target.GetComponent<PlayerController>()?.Die();
         StartCoroutine(IntroSequence());
     }
 
@@ -52,6 +55,8 @@ public class CameraAutoscrolling : MonoBehaviour
         {
             timer += Time.deltaTime;
             transform.position = Vector3.Lerp(startCamPos, targetCamPos, timer / duration);
+            mainMusicSource.volume = Mathf.Lerp(0f, targetMusicVolume, timer / musicFadeInDuration);
+
             if (!textStarted && timer / duration >= 0.3f)
             {
                 textStarted = true;
@@ -61,6 +66,7 @@ public class CameraAutoscrolling : MonoBehaviour
             yield return null;
         }
 
+        mainMusicSource.volume = targetMusicVolume;
         isIntro = false;
         target.GetComponent<PlayerController>()?.Respawn();
         titleTextEffect.gameObject.SetActive(false);
@@ -76,10 +82,10 @@ public class CameraAutoscrolling : MonoBehaviour
             if (target != null)
             {
                 Vector3 viewportPos = cam.WorldToViewportPoint(target.position);
-
                 if (viewportPos.y < 0)
                 {
                     dangerBlink?.StartBlink();
+                    FadeMusicTo(0f, 2f);
                     outOfScreenTimer += Time.deltaTime;
                     if (outOfScreenTimer >= deathDelay)
                         OnPlayerDeath();
@@ -87,10 +93,33 @@ public class CameraAutoscrolling : MonoBehaviour
                 else
                 {
                     dangerBlink?.StopBlink();
+                    FadeMusicTo(targetMusicVolume, 2f);
                     outOfScreenTimer = 0f;
                 }
             }
         }
+    }
+
+    void FadeMusicTo(float target, float duration)
+    {
+        if (musicFadeCoroutine != null)
+            StopCoroutine(musicFadeCoroutine);
+        musicFadeCoroutine = StartCoroutine(FadeMusic(target, duration));
+    }
+
+    IEnumerator FadeMusic(float targetVolume, float duration)
+    {
+        float startVolume = mainMusicSource.volume;
+        float timer = 0f;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            mainMusicSource.volume = Mathf.Lerp(startVolume, targetVolume, timer / duration);
+            yield return null;
+        }
+
+        mainMusicSource.volume = targetVolume;
     }
 
     void OnPlayerDeath()
@@ -99,31 +128,41 @@ public class CameraAutoscrolling : MonoBehaviour
         scrollSpeed = 0f;
         dangerBlink?.StopBlink();
         target.GetComponent<PlayerController>()?.Die();
-        deathCanvas.gameObject.SetActive(true);
-        deathTextEffect.StartEffect();
-
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-
         overlayImage.gameObject.SetActive(true);
+
+        if (musicFadeCoroutine != null)
+            StopCoroutine(musicFadeCoroutine);
+        mainMusicSource.Stop();
+        mainMusicSource.volume = 0f;
+
+        StartCoroutine(DelayedDeathText());
+    }
+
+    IEnumerator DelayedDeathText()
+    {
+        yield return new WaitForSeconds(1.5f);
+        deathCanvas.gameObject.SetActive(true);
+        deathTextEffect.StartEffect();
     }
 
     public void Restart()
     {
-        // Réinitialise la caméra
         isDead = false;
         scrollSpeed = initialScrollSpeed;
         outOfScreenTimer = 0f;
 
-        // Régénère la map
+        if (musicFadeCoroutine != null)
+            StopCoroutine(musicFadeCoroutine);
+        mainMusicSource.Stop();
+        mainMusicSource.volume = 0f;
+        mainMusicSource.Play();
+        FadeMusicTo(targetMusicVolume, musicFadeInDuration);
+
         Object.FindFirstObjectByType<WalkerGenerator>().ResetAndRegenerate();
-
-        // Cache l'UI
         deathCanvas.gameObject.SetActive(false);
-
-        // Redonne les contrôles au joueur
         target.GetComponent<PlayerController>()?.Respawn();
-
         Cursor.visible = false;
         overlayImage.gameObject.SetActive(false);
     }

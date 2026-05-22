@@ -23,6 +23,22 @@ public class PlayerController : MonoBehaviour
     public float DashCooldown = 0.5f;
     public bool AirDash = true;
 
+    [Header("VFX")]
+    //public GameObject jumpVfx;
+    //public GameObject doubleJumpVfx;
+    //public GameObject wallJumpVfx;
+    //public GameObject wallSlideVfx;
+    //public GameObject dashVfx;
+    //public GameObject starDashVfx;
+
+    [Header("SFX")]
+    public AudioClip jumpSfx;
+    public AudioClip doubleJumpSfx;
+    public AudioClip wallJumpSfx;
+    public AudioClip wallSlideSfx;
+    public AudioClip dashSfx;
+    public AudioClip starDashSfx;
+
     bool canMove = true;
     bool canDash = true;
 
@@ -31,11 +47,13 @@ public class PlayerController : MonoBehaviour
 
     Rigidbody2D rb;
     BoxCollider2D col;
+    AudioSource source;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<BoxCollider2D>();
+        source = GetComponent<AudioSource>();
         rb.gravityScale = Gravity;
     }
 
@@ -110,6 +128,9 @@ public class PlayerController : MonoBehaviour
         if (InTheGround())
         {
             rb.linearVelocity = Vector2.up * JumpPower;
+            //Instantiate(jumpVfx, transform.position, Quaternion.identity);
+            source.clip = jumpSfx;
+            source.Play();
         }
         else
         {
@@ -118,6 +139,9 @@ public class PlayerController : MonoBehaviour
 
             currentJumps++;
             rb.linearVelocity = Vector2.up * JumpPower;
+            //Instantiate(doubleJumpVfx, transform.position, Quaternion.identity);
+            source.clip = doubleJumpSfx;
+            source.Play();
         }
     }
 
@@ -140,6 +164,10 @@ public class PlayerController : MonoBehaviour
         float originalSpeed = Speed;
 
         Speed *= DashPower;
+        //Instantiate(dashVfx, transform.position, Quaternion.identity);
+        source.clip = dashSfx;
+        source.Play();
+
         rb.gravityScale = 0f;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
 
@@ -195,7 +223,6 @@ public class PlayerController : MonoBehaviour
     private int currentWallJumps = 0;
 
 
-
     [Header("Dash")]
     public float dashRadius = 3f;
     public float dashForce = 20f;
@@ -222,6 +249,13 @@ public class PlayerController : MonoBehaviour
     {
         if ((IsWalledLeft() || IsWalledRight()) && !InTheGround())
         {
+            if (!isWallSliding)
+            {
+                //Instantiate(wallSlideVfx, transform.position, Quaternion.identity);
+                source.clip = wallSlideSfx;
+                source.Play();
+            }
+
             isWallSliding = true;
             rb.linearVelocity = new Vector2(
                 rb.linearVelocity.x,
@@ -245,6 +279,9 @@ public class PlayerController : MonoBehaviour
         isWallJumping = true;
         currentWallJumps++;
         rb.linearVelocity = new Vector2(direction * wallJumpPower.x, wallJumpPower.y);
+        //Instantiate(wallJumpVfx, transform.position, Quaternion.identity);
+        source.clip = wallJumpSfx;
+        source.Play();
 
         Invoke(nameof(StopWallJumping), wallJumpDuration);
     }
@@ -340,6 +377,10 @@ public class PlayerController : MonoBehaviour
     private IEnumerator PerformDash(Vector2 direction)
     {
         isPerformingDash = true;
+        //Instantiate(starDashVfx, transform.position, Quaternion.identity);
+        source.clip = starDashSfx;
+        source.Play();
+
         float dashDuration = 0.2f;
         float timer = 0f;
 
@@ -375,7 +416,6 @@ public class PlayerController : MonoBehaviour
     //______________________________________________________________
     //___________________________RESPAWN____________________________
     //______________________________________________________________
-
 
     public void Respawn()
     {
