@@ -21,7 +21,7 @@ public class CameraAutoscrolling : MonoBehaviour
     public AudioSource mainMusicSource;
     public float musicFadeInDuration = 4f;
 
-    private float targetMusicVolume = 0.2f;
+    private float targetMusicVolume = 0.15f;
     private float scrollSpeed;
     private Camera cam;
     private float outOfScreenTimer = 0f;
@@ -142,7 +142,7 @@ public class CameraAutoscrolling : MonoBehaviour
 
     IEnumerator DelayedDeathText()
     {
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(0.8f);
         deathCanvas.gameObject.SetActive(true);
         deathTextEffect.StartEffect();
     }

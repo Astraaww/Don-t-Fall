@@ -1,11 +1,13 @@
 using UnityEngine;
-
 public class DashableObject : MonoBehaviour
 {
     [Header("Visuel")]
     public SpriteRenderer spriteRenderer;
     public Color normalColor = Color.white;
     public Color highlightColor = Color.yellow;
+
+    [Header("Comportement")]
+    public bool permanent = false;
 
     public void Highlight(bool active)
     {

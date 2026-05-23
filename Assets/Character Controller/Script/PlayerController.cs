@@ -24,20 +24,22 @@ public class PlayerController : MonoBehaviour
     public bool AirDash = true;
 
     [Header("VFX")]
-    //public GameObject jumpVfx;
-    //public GameObject doubleJumpVfx;
-    //public GameObject wallJumpVfx;
+    public GameObject jumpVfx;
+    public GameObject doubleJumpVfx;
+    public GameObject wallJumpVfx;
     //public GameObject wallSlideVfx;
-    //public GameObject dashVfx;
-    //public GameObject starDashVfx;
+    public GameObject dashVfx;
+    public GameObject starDashVfx;
 
     [Header("SFX")]
     public AudioClip jumpSfx;
     public AudioClip doubleJumpSfx;
     public AudioClip wallJumpSfx;
-    public AudioClip wallSlideSfx;
+    //public AudioClip wallSlideSfx;
     public AudioClip dashSfx;
     public AudioClip starDashSfx;
+    public AudioClip wallJumpImpactSfx;
+    public AudioClip starSfx;
 
     bool canMove = true;
     bool canDash = true;
@@ -47,13 +49,14 @@ public class PlayerController : MonoBehaviour
 
     Rigidbody2D rb;
     BoxCollider2D col;
-    AudioSource source;
+
+    public AudioSource mainSource;
+    public AudioSource lowSource;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<BoxCollider2D>();
-        source = GetComponent<AudioSource>();
         rb.gravityScale = Gravity;
     }
 
@@ -128,9 +131,8 @@ public class PlayerController : MonoBehaviour
         if (InTheGround())
         {
             rb.linearVelocity = Vector2.up * JumpPower;
-            //Instantiate(jumpVfx, transform.position, Quaternion.identity);
-            source.clip = jumpSfx;
-            source.Play();
+            Instantiate(jumpVfx, transform.position, Quaternion.identity);
+            mainSource.PlayOneShot(jumpSfx);
         }
         else
         {
@@ -139,9 +141,8 @@ public class PlayerController : MonoBehaviour
 
             currentJumps++;
             rb.linearVelocity = Vector2.up * JumpPower;
-            //Instantiate(doubleJumpVfx, transform.position, Quaternion.identity);
-            source.clip = doubleJumpSfx;
-            source.Play();
+            Instantiate(doubleJumpVfx, transform.position, Quaternion.identity);
+            mainSource.PlayOneShot(doubleJumpSfx);
         }
     }
 
@@ -164,9 +165,8 @@ public class PlayerController : MonoBehaviour
         float originalSpeed = Speed;
 
         Speed *= DashPower;
-        //Instantiate(dashVfx, transform.position, Quaternion.identity);
-        source.clip = dashSfx;
-        source.Play();
+        Instantiate(dashVfx, transform.position, Quaternion.identity);
+        mainSource.PlayOneShot(dashSfx);
 
         rb.gravityScale = 0f;
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
@@ -252,8 +252,7 @@ public class PlayerController : MonoBehaviour
             if (!isWallSliding)
             {
                 //Instantiate(wallSlideVfx, transform.position, Quaternion.identity);
-                source.clip = wallSlideSfx;
-                source.Play();
+                
             }
 
             isWallSliding = true;
@@ -261,6 +260,7 @@ public class PlayerController : MonoBehaviour
                 rb.linearVelocity.x,
                 Mathf.Clamp(rb.linearVelocity.y, -wallSlidingSpeed, float.MaxValue)
             );
+            //mainSource.PlayOneShot(wallSlideSfx);
         }
         else
         {
@@ -279,9 +279,10 @@ public class PlayerController : MonoBehaviour
         isWallJumping = true;
         currentWallJumps++;
         rb.linearVelocity = new Vector2(direction * wallJumpPower.x, wallJumpPower.y);
-        //Instantiate(wallJumpVfx, transform.position, Quaternion.identity);
-        source.clip = wallJumpSfx;
-        source.Play();
+        Instantiate(wallJumpVfx, transform.position, Quaternion.identity);
+        lowSource.PlayOneShot(wallJumpImpactSfx);
+        mainSource.PlayOneShot(wallJumpSfx);
+
 
         Invoke(nameof(StopWallJumping), wallJumpDuration);
     }
@@ -377,9 +378,20 @@ public class PlayerController : MonoBehaviour
     private IEnumerator PerformDash(Vector2 direction)
     {
         isPerformingDash = true;
-        //Instantiate(starDashVfx, transform.position, Quaternion.identity);
-        source.clip = starDashSfx;
-        source.Play();
+        //Instantiate(dashVfx, transform.position, Quaternion.identity);
+
+        if (dashTarget != null)
+        {
+            Instantiate(starDashVfx, dashTarget.transform.position, Quaternion.identity);
+            if (!dashTarget.GetComponent<DashableObject>().permanent)
+                Destroy(dashTarget);
+        }
+
+        float originalVolume = lowSource.volume;
+        lowSource.PlayOneShot(starSfx, 0.2f);
+        lowSource.volume = originalVolume;
+
+        mainSource.PlayOneShot(starDashSfx);
 
         float dashDuration = 0.2f;
         float timer = 0f;
