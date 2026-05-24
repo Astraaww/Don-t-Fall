@@ -12,6 +12,7 @@ public class DeathTextEffect : MonoBehaviour
     public GameObject mainMenuButton;
 
     private string fullText;
+    private System.Action onEffectComplete;
 
     void Start()
     {
@@ -19,16 +20,14 @@ public class DeathTextEffect : MonoBehaviour
         mainMenuButton.SetActive(false);
     }
 
-    public void StartEffect()
+    public void StartEffect(System.Action callback = null)
     {
+        onEffectComplete = callback;
         fullText = text.text;
         StopAllCoroutines();
         text.maxVisibleCharacters = 0;
-
-        // Remet les boutons en hidden avant de commencer
         restartButton.SetActive(false);
         mainMenuButton.SetActive(false);
-
         StartCoroutine(TypeText());
     }
 
@@ -67,6 +66,7 @@ public class DeathTextEffect : MonoBehaviour
         yield return new WaitForSeconds(1f);
         restartButton.SetActive(true);
         mainMenuButton.SetActive(true);
+        onEffectComplete?.Invoke();
     }
 }
 

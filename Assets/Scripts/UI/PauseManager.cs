@@ -1,21 +1,27 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class PauseManager : MonoBehaviour
 {
     public GameObject pauseCanvas;
-    private bool isPaused = false;
-
     public AudioSource source;
     public AudioClip clickSound;
     public TextMeshProUGUI controlsText;
+
+    public bool isPaused = false;
+    private CameraAutoscrolling cam;
+    private float originalMusicVolume;
 
     private void Start()
     {
         pauseCanvas.SetActive(false);
         controlsText.enabled = false;
+        cam = Object.FindFirstObjectByType<CameraAutoscrolling>();
+        originalMusicVolume = cam.targetMusicVolume;
     }
+
 
     void Update()
     {
@@ -35,6 +41,10 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = isPaused ? 0f : 1f;
         Cursor.visible = isPaused;
         Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
+        float targetVolume = isPaused ? 0.01f : originalMusicVolume;
+        cam.targetMusicVolume = targetVolume;
+        cam.StopMusicFade();
+        StartCoroutine(FadeMusicUnscaled(cam.mainMusicSource, targetVolume, 0.5f));
     }
 
     public void Resume()
@@ -71,5 +81,18 @@ public class PauseManager : MonoBehaviour
         source.Play();
         Time.timeScale = 1f;
         SceneManager.LoadScene("Main Menu");
+    }
+
+    IEnumerator FadeMusicUnscaled(AudioSource audioSource, float targetVolume, float duration)
+    {
+        float startVolume = audioSource.volume;
+        float timer = 0f;
+        while (timer < duration)
+        {
+            timer += Time.unscaledDeltaTime;
+            audioSource.volume = Mathf.Lerp(startVolume, targetVolume, timer / duration);
+            yield return null;
+        }
+        audioSource.volume = targetVolume;
     }
 }

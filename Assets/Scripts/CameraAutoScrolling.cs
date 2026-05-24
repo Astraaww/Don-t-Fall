@@ -20,8 +20,8 @@ public class CameraAutoscrolling : MonoBehaviour
     public bool isDead = false;
     public AudioSource mainMusicSource;
     public float musicFadeInDuration = 4f;
+    public float targetMusicVolume = 0.01f;
 
-    private float targetMusicVolume = 0.15f;
     private float scrollSpeed;
     private Camera cam;
     private float outOfScreenTimer = 0f;
@@ -32,7 +32,7 @@ public class CameraAutoscrolling : MonoBehaviour
         cam = GetComponent<Camera>();
         deathCanvas.gameObject.SetActive(false);
         scrollSpeed = initialScrollSpeed;
-        Cursor.visible = false;
+        Cursor.visible = true;
 
         mainMusicSource.volume = 0f;
         mainMusicSource.Play();
@@ -68,13 +68,14 @@ public class CameraAutoscrolling : MonoBehaviour
 
         mainMusicSource.volume = targetMusicVolume;
         isIntro = false;
+        Object.FindFirstObjectByType<ScoreManager>()?.StartScore();
         target.GetComponent<PlayerController>()?.Respawn();
         titleTextEffect.gameObject.SetActive(false);
     }
 
     void LateUpdate()
     {
-        if (!isDead)
+        if (!isDead && !Object.FindFirstObjectByType<PauseManager>().isPaused)
         {
             scrollSpeed = Mathf.Min(scrollSpeed + acceleration * Time.deltaTime, maxScrollSpeed);
             transform.position += Vector3.up * scrollSpeed * Time.deltaTime;
@@ -128,14 +129,14 @@ public class CameraAutoscrolling : MonoBehaviour
         scrollSpeed = 0f;
         dangerBlink?.StopBlink();
         target.GetComponent<PlayerController>()?.Die();
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        //Cursor.visible = true;
         overlayImage.gameObject.SetActive(true);
 
         if (musicFadeCoroutine != null)
             StopCoroutine(musicFadeCoroutine);
         mainMusicSource.Stop();
         mainMusicSource.volume = 0f;
+        Object.FindFirstObjectByType<ScoreManager>()?.HideInGameScore();
 
         StartCoroutine(DelayedDeathText());
     }
@@ -144,7 +145,9 @@ public class CameraAutoscrolling : MonoBehaviour
     {
         yield return new WaitForSeconds(0.8f);
         deathCanvas.gameObject.SetActive(true);
-        deathTextEffect.StartEffect();
+        deathTextEffect.StartEffect(() => {
+            Object.FindFirstObjectByType<ScoreManager>()?.ShowDeathScore();
+        });
     }
 
     public void Restart()
@@ -162,8 +165,17 @@ public class CameraAutoscrolling : MonoBehaviour
 
         Object.FindFirstObjectByType<WalkerGenerator>().ResetAndRegenerate();
         deathCanvas.gameObject.SetActive(false);
+        Object.FindFirstObjectByType<ScoreManager>()?.ResetScore();
+        Object.FindFirstObjectByType<ScoreManager>()?.StartScore();
+        Object.FindFirstObjectByType<ScoreManager>()?.ShowInGameScore();
         target.GetComponent<PlayerController>()?.Respawn();
-        Cursor.visible = false;
+        //Cursor.visible = false;
         overlayImage.gameObject.SetActive(false);
+    }
+
+    public void StopMusicFade()
+    {
+        if (musicFadeCoroutine != null)
+            StopCoroutine(musicFadeCoroutine);
     }
 }

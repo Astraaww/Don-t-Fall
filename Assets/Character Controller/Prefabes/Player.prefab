@@ -356,6 +356,7 @@ MonoBehaviour:
   starDashSfx: {fileID: 8300000, guid: c0ee0e7e6493f6b4ba856a244e671849, type: 3}
   wallJumpImpactSfx: {fileID: 8300000, guid: a53ef3728bbf7434c997021b12221065, type: 3}
   starSfx: {fileID: 8300000, guid: 3e44fe8f75b5bef458e840aa370b1608, type: 3}
+  nuageWhooshSfx: {fileID: 8300000, guid: 659bbee738ff70749b80724af58faec9, type: 3}
   mainSource: {fileID: 1433894856919477686}
   lowSource: {fileID: 1854869999832139215}
   maxWallJumps: 40

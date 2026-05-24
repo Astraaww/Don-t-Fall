@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviour
     public AudioClip starDashSfx;
     public AudioClip wallJumpImpactSfx;
     public AudioClip starSfx;
+    public AudioClip nuageWhooshSfx;
 
     bool canMove = true;
     bool canDash = true;
@@ -132,6 +133,7 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = Vector2.up * JumpPower;
             Instantiate(jumpVfx, transform.position, Quaternion.identity);
+            lowSource.PlayOneShot(wallJumpImpactSfx);
             mainSource.PlayOneShot(jumpSfx);
         }
         else
@@ -142,6 +144,7 @@ public class PlayerController : MonoBehaviour
             currentJumps++;
             rb.linearVelocity = Vector2.up * JumpPower;
             Instantiate(doubleJumpVfx, transform.position, Quaternion.identity);
+            //lowSource.PlayOneShot(nuageWhooshSfx);
             mainSource.PlayOneShot(doubleJumpSfx);
         }
     }
@@ -166,6 +169,10 @@ public class PlayerController : MonoBehaviour
 
         Speed *= DashPower;
         Instantiate(dashVfx, transform.position, Quaternion.identity);
+
+        //float originalVolume = lowSource.volume;
+        //lowSource.PlayOneShot(dashSfx, 0.2f);
+        //lowSource.volume = originalVolume;
         mainSource.PlayOneShot(dashSfx);
 
         rb.gravityScale = 0f;
@@ -366,7 +373,7 @@ public class PlayerController : MonoBehaviour
     private void EndDash(Vector2 direction)
     {
         isDashing = false;
-        Cursor.visible = false;
+        //Cursor.visible = false;
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
         rb.gravityScale = 0f;

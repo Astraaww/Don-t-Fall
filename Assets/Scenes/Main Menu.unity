@@ -1103,6 +1103,7 @@ GameObject:
   - component: {fileID: 1360090782}
   - component: {fileID: 1360090783}
   - component: {fileID: 1360090784}
+  - component: {fileID: 1360090785}
   m_Layer: 5
   m_Name: Scripts
   m_TagString: Untagged
@@ -1350,8 +1351,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: afe437800d375134bb47a3675d5660ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cursorTexture: {fileID: 2800000, guid: 97071dc26caa97248bdda3f4c172df92, type: 3}
+  cursorTexture: {fileID: 2800000, guid: 738ce11305f505d44ade1a9633f56b22, type: 3}
   hotspot: {x: 0, y: 0}
+--- !u!114 &1360090785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1360090779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52500f578f9c31a4fb2bd0710e9e3f98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1398295676
 GameObject:
   m_ObjectHideFlags: 0
