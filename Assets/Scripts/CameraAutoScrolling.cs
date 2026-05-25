@@ -22,10 +22,15 @@ public class CameraAutoscrolling : MonoBehaviour
     public float musicFadeInDuration = 4f;
     public float targetMusicVolume = 0.01f;
 
+    public GameObject spawnVFX;
+    public AudioClip spawnSfx;
+    public AudioSource source;
+
     private float scrollSpeed;
     private Camera cam;
     private float outOfScreenTimer = 0f;
     private Coroutine musicFadeCoroutine;
+    private float camVelocity = 0f;
 
     void Start()
     {
@@ -38,6 +43,7 @@ public class CameraAutoscrolling : MonoBehaviour
         mainMusicSource.Play();
 
         target.GetComponent<PlayerController>()?.Die();
+        target.GetComponent<SpriteRenderer>().enabled = false;
         StartCoroutine(IntroSequence());
     }
 
@@ -69,16 +75,29 @@ public class CameraAutoscrolling : MonoBehaviour
         mainMusicSource.volume = targetMusicVolume;
         isIntro = false;
         Object.FindFirstObjectByType<ScoreManager>()?.StartScore();
+        target.GetComponent<SpriteRenderer>().enabled = true;
+        Instantiate(spawnVFX, target.position, Quaternion.identity);
+        source.PlayOneShot(spawnSfx);
         target.GetComponent<PlayerController>()?.Respawn();
         titleTextEffect.gameObject.SetActive(false);
     }
 
     void LateUpdate()
     {
-        if (!isDead && !Object.FindFirstObjectByType<PauseManager>().isPaused)
+        PauseManager pauseManager = Object.FindFirstObjectByType<PauseManager>();
+        if (!isDead && (pauseManager == null || !pauseManager.isPaused))
         {
             scrollSpeed = Mathf.Min(scrollSpeed + acceleration * Time.deltaTime, maxScrollSpeed);
             transform.position += Vector3.up * scrollSpeed * Time.deltaTime;
+
+            Vector3 playerViewport = cam.WorldToViewportPoint(target.position);
+            if (playerViewport.y > 0.8f)
+            {
+                float pushStrength = (playerViewport.y - 0.8f) / 0.2f;
+                float targetY = transform.position.y + pushStrength * 5f;
+                float newY = Mathf.SmoothDamp(transform.position.y, targetY, ref camVelocity, 1f);
+                transform.position = new Vector3(transform.position.x, newY, transform.position.z);
+            }
 
             if (target != null)
             {
@@ -168,6 +187,9 @@ public class CameraAutoscrolling : MonoBehaviour
         Object.FindFirstObjectByType<ScoreManager>()?.ResetScore();
         Object.FindFirstObjectByType<ScoreManager>()?.StartScore();
         Object.FindFirstObjectByType<ScoreManager>()?.ShowInGameScore();
+        target.GetComponent<SpriteRenderer>().enabled = true;
+        Instantiate(spawnVFX, target.position, Quaternion.identity);
+        source.PlayOneShot(spawnSfx);
         target.GetComponent<PlayerController>()?.Respawn();
         //Cursor.visible = false;
         overlayImage.gameObject.SetActive(false);

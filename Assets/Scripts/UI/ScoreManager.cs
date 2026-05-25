@@ -42,11 +42,12 @@ public class ScoreManager : MonoBehaviour
             PlayerPrefs.SetInt("HighScore", highScore);
             PlayerPrefs.Save();
         }
-
         displayedScore = 0;
         targetScore = 0;
         isRunning = false;
         scoreText.text = "000000";
+        deathScoreText.text = "";
+        deathHighScoreText.text = "";
     }
 
     void Update()

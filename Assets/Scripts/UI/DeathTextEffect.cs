@@ -12,20 +12,48 @@ public class DeathTextEffect : MonoBehaviour
     public GameObject mainMenuButton;
 
     private string fullText;
+    private string part1;
+    private string part2;
     private System.Action onEffectComplete;
+
+    private string GetDeathText(int runs)
+    {
+        if (runs == 20) return "Why are you still trying|?";
+        if (runs == 21) return "You know there's no winning screen, right|...";
+        if (runs == 22) return "|...";
+        if (runs == 35) return "Your perseverance borders on stupidity|...";
+        return "you've fallen|...";
+    }
 
     void Start()
     {
         restartButton.SetActive(false);
         mainMenuButton.SetActive(false);
+
+        int runs = PlayerPrefs.GetInt("RunCount", 0);
+        PlayerPrefs.SetInt("RunCount", runs + 1);
+        PlayerPrefs.Save();
     }
 
     public void StartEffect(System.Action callback = null)
     {
         onEffectComplete = callback;
-        fullText = text.text;
-        StopAllCoroutines();
+
+        int runs = PlayerPrefs.GetInt("RunCount", 0);
+        PlayerPrefs.SetInt("RunCount", runs + 1);
+        PlayerPrefs.Save();
+
+        string chosenText = GetDeathText(runs);
+
+        fullText = chosenText.Replace("|", "");
+        string[] parts = chosenText.Split('|');
+        part1 = parts[0];
+        part2 = parts.Length > 1 ? parts[1] : "";
+
+        text.text = fullText;
         text.maxVisibleCharacters = 0;
+
+        StopAllCoroutines();
         restartButton.SetActive(false);
         mainMenuButton.SetActive(false);
         StartCoroutine(TypeText());
@@ -33,10 +61,6 @@ public class DeathTextEffect : MonoBehaviour
 
     IEnumerator TypeText()
     {
-        string part1 = "you've fallen";
-        string part2 = "...";
-
-        // Phase 1 : "you've fallen" au rythme normal
         for (int i = 1; i <= part1.Length; i++)
         {
             text.maxVisibleCharacters = i;
@@ -47,10 +71,8 @@ public class DeathTextEffect : MonoBehaviour
             audioSource.Stop();
         }
 
-        // Silence
         yield return new WaitForSeconds(0.7f);
 
-        // Phase 2 : "..." plus lentement
         for (int i = 1; i <= part2.Length; i++)
         {
             text.maxVisibleCharacters = part1.Length + i;
@@ -69,4 +91,3 @@ public class DeathTextEffect : MonoBehaviour
         onEffectComplete?.Invoke();
     }
 }
-

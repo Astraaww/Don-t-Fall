@@ -124,6 +124,8 @@ public class WalkerGenerator : MonoBehaviour
             lastChunkTopOpenings.Add(centerX);
         }
 
+        WidenNarrowPassages(grid);
+        RenderChunk(grid, yOffset);
         RenderChunk(grid, yOffset);
         SpawnDashables(grid, yOffset);
     }
@@ -155,6 +157,7 @@ public class WalkerGenerator : MonoBehaviour
             {
                 int x = (int)w.Position.x;
                 int y = (int)w.Position.y;
+
                 if (grid[x, y] != Grid.EMPTY)
                 {
                     grid[x, y] = Grid.EMPTY;
@@ -168,6 +171,8 @@ public class WalkerGenerator : MonoBehaviour
             UpdatePosition(walkers, grid);
         }
     }
+
+
 
     // ─── Rendu ───────────────────────────────────────────────────────────────
 
@@ -207,6 +212,30 @@ public class WalkerGenerator : MonoBehaviour
             }
         }
     }
+
+    void WidenNarrowPassages(Grid[,] grid)
+    {
+        for (int x = 2; x < MapWidth - 2; x++)
+        {
+            for (int y = 2; y < MapHeight - 2; y++)
+            {
+                if (grid[x, y] != Grid.EMPTY) continue;
+
+                // Passage vertical étroit (1 tile de large)
+                bool wallLeft = grid[x - 1, y] == Grid.WALL;
+                bool wallRight = grid[x + 1, y] == Grid.WALL;
+                if (wallLeft && wallRight)
+                    grid[x + 1, y] = Grid.EMPTY;
+
+                // Passage horizontal étroit (1 tile de haut)
+                bool wallDown = grid[x, y - 1] == Grid.WALL;
+                bool wallUp = grid[x, y + 1] == Grid.WALL;
+                if (wallDown && wallUp)
+                    grid[x, y + 1] = Grid.EMPTY;
+            }
+        }
+    }
+
 
     // ─── Walker helpers ───────────────────────────────────────────────────────
 
