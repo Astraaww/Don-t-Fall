@@ -157,21 +157,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '[ Q | D ] : Move Left / Right
-
-
-    [ Space ] : Jump / Double Jump / Wall
-    Jump
-
-
-    [ Shift ] : Dash
-
-
-    [ E on Stars] : Directional dash / Reset CD
-
-
-    [
-    Escape ] : Pause '
+  m_text: "[ Q | D ] : Move Left / Right\n\r\n[ Space ] : Jump / Double Jump / Wall
+    Jump\n\r\n[ Shift ] : Dash\n\r\n[ E on Stars] : Directional dash / Reset jumps
+    CD\n\r\n[ Middle click ] : Toggle cursor visibility \n\r\n[ Escape ] : Pause "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6135cd701d6e3ec49b2b8e75b912bac6, type: 2}
   m_sharedMaterial: {fileID: 5546986821574977031, guid: 6135cd701d6e3ec49b2b8e75b912bac6, type: 2}
@@ -993,7 +981,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1360090781}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
-        m_MethodName: ToggleControls
+        m_MethodName: ToggleCredits
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1498,6 +1486,7 @@ MonoBehaviour:
   source: {fileID: 1360090782}
   clickSound: {fileID: 8300000, guid: 2304b361b7aa8394ab71ecbdca76fa70, type: 3}
   controlsText: {fileID: 129293414}
+  creditsText: {fileID: 1679779017}
 --- !u!82 &1360090782
 AudioSource:
   m_ObjectHideFlags: 0
@@ -6446,10 +6435,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 443184627}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 581.62695, y: -7.254059}
-  m_SizeDelta: {x: 206.6586, y: 296.1757}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: 516.47394, y: -62.415085}
+  m_SizeDelta: {x: 274.69, y: 406.4979}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1679779017
 MonoBehaviour:
@@ -6471,18 +6460,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Game Design & Development
-
-
-    Tools : Unity, Claude
-
-
-    Music & SFX
-    : various free assets from Pixabay and other sources
-
-
-    Visual Assets : various
-    free assets from Itch.io, Unity Asset Store and other sources'
+  m_text: "Game Design & Development\nChristy Armandou\n\nSFX\nfreesound_community,
+    floraphonic (Pixabay)\n\nMusic\nPixabay\n\nTileset\nedermuniz\n\nVFX\nJean Moreno
+    \u2014 Cartoon FX Remaster FREE (Unity Asset Store)\n\nCharacter Controller Base\nVEOdev
+    - Basic 2D Character Controller (Unity Asset Store) \n\nAdditional assets from
+    various free sources\n\nTools\nUnity, Claude"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6135cd701d6e3ec49b2b8e75b912bac6, type: 2}
   m_sharedMaterial: {fileID: 5546986821574977031, guid: 6135cd701d6e3ec49b2b8e75b912bac6, type: 2}
@@ -6516,7 +6498,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 2
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -6547,7 +6529,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0.7988205, y: 0, z: -42.10353, w: 0}
+  m_margin: {x: 0.7988205, y: 0, z: -0.7867737, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

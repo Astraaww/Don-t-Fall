@@ -148,7 +148,7 @@ public class CameraAutoscrolling : MonoBehaviour
         scrollSpeed = 0f;
         dangerBlink?.StopBlink();
         target.GetComponent<PlayerController>()?.Die();
-        //Cursor.visible = true;
+        Cursor.visible = true;
         overlayImage.gameObject.SetActive(true);
 
         if (musicFadeCoroutine != null)

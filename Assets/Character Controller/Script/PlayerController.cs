@@ -279,7 +279,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!isWallSliding) return;
         if (!Input.GetKeyDown(KeyCode.Space)) return;
-        if (currentWallJumps >= maxWallJumps) return;
+        //if (currentWallJumps >= maxWallJumps) return;
 
         float direction = IsWalledRight() ? -1f : 1f;
 
@@ -373,7 +373,6 @@ public class PlayerController : MonoBehaviour
     private void EndDash(Vector2 direction)
     {
         isDashing = false;
-        //Cursor.visible = false;
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
         rb.gravityScale = 0f;

@@ -8,10 +8,12 @@ public class MainMenu : MonoBehaviour
     public AudioClip clickSound;
 
     public TextMeshProUGUI controlsText;
+    public TextMeshProUGUI creditsText;
 
     private void Start()
     {
         controlsText.enabled = false;
+        creditsText.enabled = false;
     }
 
     public void PlayGame()
@@ -44,5 +46,12 @@ public class MainMenu : MonoBehaviour
         source.clip = clickSound;
         source.Play();
         controlsText.enabled = !controlsText.enabled;
+    }
+
+    public void ToggleCredits()
+    {
+        source.clip = clickSound;
+        source.Play();
+        creditsText.enabled = !creditsText.enabled;
     }
 }

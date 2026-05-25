@@ -25,7 +25,7 @@ public class PauseManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             CameraAutoscrolling cam = Object.FindFirstObjectByType<CameraAutoscrolling>();
             if (cam.isIntro) return;
@@ -40,7 +40,7 @@ public class PauseManager : MonoBehaviour
         pauseCanvas.SetActive(isPaused);
         Time.timeScale = isPaused ? 0f : 1f;
         Cursor.visible = isPaused;
-        Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.None;
         float targetVolume = isPaused ? 0.01f : originalMusicVolume;
         cam.targetMusicVolume = targetVolume;
         cam.StopMusicFade();

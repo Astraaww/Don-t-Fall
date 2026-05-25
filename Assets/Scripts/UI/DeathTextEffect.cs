@@ -22,7 +22,7 @@ public class DeathTextEffect : MonoBehaviour
         if (runs == 21) return "You know there's no winning screen, right|...";
         if (runs == 22) return "|...";
         if (runs == 35) return "Your perseverance borders on stupidity|...";
-        return "you've fallen|...";
+        return "You've fallen|...";
     }
 
     void Start()
