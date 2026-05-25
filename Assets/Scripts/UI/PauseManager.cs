@@ -80,6 +80,11 @@ public class PauseManager : MonoBehaviour
         source.clip = clickSound;
         source.Play();
         Time.timeScale = 1f;
+        Invoke("LoadMainMenu", clickSound.length);
+    }
+
+    public void LoadMainMenu()
+    {
         SceneManager.LoadScene("Main Menu");
     }
 
