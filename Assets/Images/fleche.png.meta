@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 5638bac9b7c7aa34ba152908ed043b58
+guid: 529dc1973f59b974e92c6079dacd647e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3760491333725829256
-    second: Dash-Arrow_0
+      213: 6807138530303061893
+    second: fleche_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,12 +46,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 2
+  spritePixelsToUnits: 4
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -100,23 +100,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Dash-Arrow_0
+      name: fleche_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 912
-        height: 350
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        width: 16
+        height: 16
+      alignment: 9
+      pivot: {x: 0.00055080507, y: 0.49714366}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 87746505e0d00dbc0800000000000000
-      internalID: -3760491333725829256
+      spriteID: 58fa6937d60d77e50800000000000000
+      internalID: 6807138530303061893
       vertices: []
       indices: 
       edges: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 2f9368a6be8b60449b51814cc12afe1f
     internalID: 0
     vertices: []
     indices: 
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Dash-Arrow_0: -3760491333725829256
+      fleche_0: 6807138530303061893
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

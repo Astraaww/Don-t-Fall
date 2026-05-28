@@ -763,6 +763,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6983479104780523180, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 8894300348961164302, guid: 777ae7764fbd87847917e6c9e4e02915, type: 3}
+    - target: {fileID: 6983479104780523180, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
+      propertyPath: m_Color.a
+      value: 0.44705883
+      objectReference: {fileID: 0}
+    - target: {fileID: 6983479104780523180, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6983479104780523180, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6983479104780523180, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7696167157940194099, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
       propertyPath: m_Name
       value: Player
@@ -771,6 +791,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 7696167157940194103, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -4812253290040844322, guid: f06def9394f67074db993397aaf2933f, type: 3}
     - target: {fileID: 7696167157940194104, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.3126554
@@ -809,6 +833,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7696167157940194104, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7696167157940194104, guid: 901506c11712dbc42a0885676fe718b5, type: 3}
+      propertyPath: m_ConstrainProportionsScale
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -6463,8 +6491,8 @@ MonoBehaviour:
   m_text: "Game Design & Development\nChristy Armandou\n\nSFX\nfreesound_community,
     floraphonic (Pixabay)\n\nMusic\nPixabay\n\nTileset\nedermuniz\n\nVFX\nJean Moreno
     \u2014 Cartoon FX Remaster FREE (Unity Asset Store)\n\nCharacter Controller Base\nVEOdev
-    - Basic 2D Character Controller (Unity Asset Store) \n\nAdditional assets from
-    various free sources\n\nTools\nUnity, Claude"
+    - Basic 2D Character Controller (Unity Asset Store) \n\nCharacter and arrow\nEmrys
+    Bedrune\n\nAdditional assets from various free sources\n\nTools\nUnity, Claude"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6135cd701d6e3ec49b2b8e75b912bac6, type: 2}
   m_sharedMaterial: {fileID: 5546986821574977031, guid: 6135cd701d6e3ec49b2b8e75b912bac6, type: 2}
