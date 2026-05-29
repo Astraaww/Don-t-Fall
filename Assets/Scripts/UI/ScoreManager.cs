@@ -9,6 +9,8 @@ public class ScoreManager : MonoBehaviour
     public TextMeshProUGUI deathScoreText;
     public TextMeshProUGUI deathHighScoreText;
     public float heightMultiplier = 10f;
+    public LineRenderer bestScoreLine;
+    public Transform playerStart;
 
     private bool isRunning = false;
     private int displayedScore = 0;
@@ -20,7 +22,19 @@ public class ScoreManager : MonoBehaviour
     {
         highScore = PlayerPrefs.GetInt("HighScore", 0);
         highestY = player.position.y;
+        UpdateBestScoreLine();
     }
+    void UpdateBestScoreLine()
+    {
+        if (bestScoreLine == null) return;
+
+        bestScoreLine.positionCount = 2;
+        float lineY = 2.5f + (highScore / heightMultiplier);
+        Debug.Log("HighScore : " + highScore + " | LineY : " + lineY);
+        bestScoreLine.SetPosition(0, new Vector3(0, lineY, 0));
+        bestScoreLine.SetPosition(1, new Vector3(10, lineY, 0));
+    }
+
 
     public void StartScore()
     {
@@ -48,6 +62,14 @@ public class ScoreManager : MonoBehaviour
         scoreText.text = "000000";
         deathScoreText.text = "";
         deathHighScoreText.text = "";
+
+        if (targetScore > highScore)
+        {
+            highScore = targetScore;
+            PlayerPrefs.SetInt("HighScore", highScore);
+            PlayerPrefs.Save();
+            UpdateBestScoreLine();
+        }
     }
 
     void Update()
