@@ -20,8 +20,11 @@ public class DeathTextEffect : MonoBehaviour
     {
         if (runs == 20) return "Why are you still trying|?";
         if (runs == 21) return "You know there's no winning screen, right|...";
-        if (runs == 22) return "|...";
         if (runs == 35) return "Your perseverance borders on stupidity|...";
+        if (runs == 37) return "What a waste of time... for both of us|...";
+        if (runs == 70) return "By the way, what are you gonna do with all those stars|?";
+        if (runs >= 22 && runs <= 34) return "|...";
+        if (runs >= 36) return "|...";
         return "You've fallen|...";
     }
 
@@ -29,13 +32,16 @@ public class DeathTextEffect : MonoBehaviour
     {
         restartButton.SetActive(false);
         mainMenuButton.SetActive(false);
-        //PlayerPrefs.DeleteKey("RunCount");
 
         int runs = PlayerPrefs.GetInt("RunCount", 0);
         PlayerPrefs.SetInt("RunCount", runs + 1);
         PlayerPrefs.Save();
-        
-        //Debug.Log("Run : " + runs);
+
+        if (PlayerPrefs.GetInt("FirstLaunch", 0) == 0)
+        {
+            PlayerPrefs.DeleteKey("RunCount");
+            PlayerPrefs.Save();
+        }
     }
 
     public void StartEffect(System.Action callback = null)

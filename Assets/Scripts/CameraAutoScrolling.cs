@@ -45,6 +45,8 @@ public class CameraAutoscrolling : MonoBehaviour
         target.GetComponent<PlayerController>()?.Die();
         target.GetComponent<SpriteRenderer>().enabled = false;
         StartCoroutine(IntroSequence());
+
+
     }
 
     IEnumerator IntroSequence()

@@ -23,10 +23,19 @@ public class ScoreManager : MonoBehaviour
     void Start()
     {
         highScore = PlayerPrefs.GetInt("HighScore", 0);
-        hasPlayedBefore = PlayerPrefs.GetInt("HighScore", 0) > 0;
+        hasPlayedBefore = PlayerPrefs.GetInt("HasPlayedBefore", 0) == 1;
         highestY = player.position.y;
         UpdateBestScoreLine();
-        //PlayerPrefs.DeleteKey("HighScore");
+
+        PlayerPrefs.DeleteKey("HighScore");
+
+        if (PlayerPrefs.GetInt("FirstLaunch", 0) == 0)
+        {
+            PlayerPrefs.DeleteKey("HighScore");
+            PlayerPrefs.DeleteKey("RunCount");
+            PlayerPrefs.SetInt("FirstLaunch", 1);
+            PlayerPrefs.Save();
+        }
 
     }
 
@@ -50,7 +59,7 @@ public class ScoreManager : MonoBehaviour
         if (bestScoreLineText != null)
         {
             bestScoreLineText.transform.position = new Vector3(-2f, lineY, 3f);
-            bestScoreLineText.text = "BEST : " + highScore;
+            bestScoreLineText.text = "HI-SCORE : " + highScore;
         }
     }
 
@@ -110,7 +119,11 @@ public class ScoreManager : MonoBehaviour
             highScore = targetScore;
             PlayerPrefs.SetInt("HighScore", highScore);
             PlayerPrefs.Save();
-            UpdateBestScoreLine();
         }
+
+        hasPlayedBefore = true;
+        PlayerPrefs.SetInt("HasPlayedBefore", 1);
+        PlayerPrefs.Save();
+        UpdateBestScoreLine();
     }
 }

@@ -1679,8 +1679,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1882053333}
-  scoreText: {fileID: 1837435059}
-  deathScoreText: {fileID: 1484814643}
+  scoreText: {fileID: 142894274}
+  deathScoreText: {fileID: 1837435059}
   deathHighScoreText: {fileID: 1484814643}
   heightMultiplier: 10
   bestScoreLine: {fileID: 1013546909}
