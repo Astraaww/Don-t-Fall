@@ -1,7 +1,6 @@
-using System.Collections;
-using UnityEngine;
 using TMPro;
-
+using UnityEngine;
+using System.Collections;
 public class ScoreManager : MonoBehaviour
 {
     public Transform player;
@@ -23,20 +22,9 @@ public class ScoreManager : MonoBehaviour
     void Start()
     {
         highScore = PlayerPrefs.GetInt("HighScore", 0);
-        hasPlayedBefore = PlayerPrefs.GetInt("HasPlayedBefore", 0) == 1;
+        hasPlayedBefore = PlayerPrefs.GetInt("HighScore", 0) > 0;
         highestY = player.position.y;
         UpdateBestScoreLine();
-
-        PlayerPrefs.DeleteKey("HighScore");
-
-        if (PlayerPrefs.GetInt("FirstLaunch", 0) == 0)
-        {
-            PlayerPrefs.DeleteKey("HighScore");
-            PlayerPrefs.DeleteKey("RunCount");
-            PlayerPrefs.SetInt("FirstLaunch", 1);
-            PlayerPrefs.Save();
-        }
-
     }
 
     void UpdateBestScoreLine()
@@ -58,7 +46,7 @@ public class ScoreManager : MonoBehaviour
         bestScoreLine.SetPosition(1, new Vector3(1f, lineY, 0));
         if (bestScoreLineText != null)
         {
-            bestScoreLineText.transform.position = new Vector3(-2f, lineY, 3f);
+            bestScoreLineText.transform.position = new Vector3(-3f, lineY, 3f);
             bestScoreLineText.text = "HI-SCORE : " + highScore;
         }
     }
@@ -122,8 +110,6 @@ public class ScoreManager : MonoBehaviour
         }
 
         hasPlayedBefore = true;
-        PlayerPrefs.SetInt("HasPlayedBefore", 1);
-        PlayerPrefs.Save();
         UpdateBestScoreLine();
     }
 }

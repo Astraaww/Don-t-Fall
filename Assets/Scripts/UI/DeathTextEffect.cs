@@ -10,7 +10,6 @@ public class DeathTextEffect : MonoBehaviour
     public float delayBetweenLetters = 0.1f;
     public GameObject restartButton;
     public GameObject mainMenuButton;
-
     private string fullText;
     private string part1;
     private string part2;
@@ -18,7 +17,7 @@ public class DeathTextEffect : MonoBehaviour
 
     private string GetDeathText(int runs)
     {
-        if (runs == 20) return "Why are you still trying|?";
+        if (runs == 2) return "Why are you still trying|?";
         if (runs == 21) return "You know there's no winning screen, right|...";
         if (runs == 35) return "Your perseverance borders on stupidity|...";
         if (runs == 37) return "What a waste of time... for both of us|...";
@@ -32,42 +31,28 @@ public class DeathTextEffect : MonoBehaviour
     {
         restartButton.SetActive(false);
         mainMenuButton.SetActive(false);
-
-        int runs = PlayerPrefs.GetInt("RunCount", 0);
-        PlayerPrefs.SetInt("RunCount", runs + 1);
-        PlayerPrefs.Save();
-
-        if (PlayerPrefs.GetInt("FirstLaunch", 0) == 0)
-        {
-            PlayerPrefs.DeleteKey("RunCount");
-            PlayerPrefs.Save();
-        }
+        //PlayerPrefs.SetInt("RunCount", 0);
+        //PlayerPrefs.Save();
     }
 
     public void StartEffect(System.Action callback = null)
     {
         onEffectComplete = callback;
-
         int runs = PlayerPrefs.GetInt("RunCount", 0);
         Debug.Log("Run : " + runs);
         PlayerPrefs.SetInt("RunCount", runs + 1);
         PlayerPrefs.Save();
-
         string chosenText = GetDeathText(runs);
-
         fullText = chosenText.Replace("|", "");
         string[] parts = chosenText.Split('|');
         part1 = parts[0];
         part2 = parts.Length > 1 ? parts[1] : "";
-
         text.text = fullText;
         text.maxVisibleCharacters = 0;
-
         StopAllCoroutines();
         restartButton.SetActive(false);
         mainMenuButton.SetActive(false);
         StartCoroutine(TypeText());
-        
     }
 
     IEnumerator TypeText()
@@ -81,9 +66,7 @@ public class DeathTextEffect : MonoBehaviour
             yield return new WaitForSeconds(delayBetweenLetters);
             audioSource.Stop();
         }
-
         yield return new WaitForSeconds(0.7f);
-
         for (int i = 1; i <= part2.Length; i++)
         {
             text.maxVisibleCharacters = part1.Length + i;
@@ -93,7 +76,6 @@ public class DeathTextEffect : MonoBehaviour
             audioSource.Play();
             yield return new WaitForSeconds(delayBetweenLetters * 4f);
         }
-
         audioSource.Stop();
         audioSource.pitch = 1f;
         yield return new WaitForSeconds(1f);
