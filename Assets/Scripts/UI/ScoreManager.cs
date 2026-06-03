@@ -11,30 +11,48 @@ public class ScoreManager : MonoBehaviour
     public float heightMultiplier = 10f;
     public LineRenderer bestScoreLine;
     public Transform playerStart;
+    public TextMeshPro bestScoreLineText;
 
     private bool isRunning = false;
     private int displayedScore = 0;
     private int targetScore = 0;
     private int highScore = 0;
     private float highestY = 0f;
+    private bool hasPlayedBefore = false;
 
     void Start()
     {
         highScore = PlayerPrefs.GetInt("HighScore", 0);
+        hasPlayedBefore = PlayerPrefs.GetInt("HighScore", 0) > 0;
         highestY = player.position.y;
         UpdateBestScoreLine();
+        //PlayerPrefs.DeleteKey("HighScore");
+
     }
+
     void UpdateBestScoreLine()
     {
         if (bestScoreLine == null) return;
-
+        if (highScore == 0 || !hasPlayedBefore)
+        {
+            bestScoreLine.enabled = false;
+            if (bestScoreLineText != null)
+                bestScoreLineText.gameObject.SetActive(false);
+            return;
+        }
+        bestScoreLine.enabled = true;
+        if (bestScoreLineText != null)
+            bestScoreLineText.gameObject.SetActive(true);
         bestScoreLine.positionCount = 2;
         float lineY = 2.5f + (highScore / heightMultiplier);
-        Debug.Log("HighScore : " + highScore + " | LineY : " + lineY);
-        bestScoreLine.SetPosition(0, new Vector3(0, lineY, 0));
-        bestScoreLine.SetPosition(1, new Vector3(10, lineY, 0));
+        bestScoreLine.SetPosition(0, new Vector3(-1f, lineY, 0));
+        bestScoreLine.SetPosition(1, new Vector3(1f, lineY, 0));
+        if (bestScoreLineText != null)
+        {
+            bestScoreLineText.transform.position = new Vector3(-2f, lineY, 3f);
+            bestScoreLineText.text = "BEST : " + highScore;
+        }
     }
-
 
     public void StartScore()
     {
@@ -50,26 +68,12 @@ public class ScoreManager : MonoBehaviour
 
     public void ResetScore()
     {
-        if (targetScore > highScore)
-        {
-            highScore = targetScore;
-            PlayerPrefs.SetInt("HighScore", highScore);
-            PlayerPrefs.Save();
-        }
         displayedScore = 0;
         targetScore = 0;
         isRunning = false;
         scoreText.text = "000000";
         deathScoreText.text = "";
         deathHighScoreText.text = "";
-
-        if (targetScore > highScore)
-        {
-            highScore = targetScore;
-            PlayerPrefs.SetInt("HighScore", highScore);
-            PlayerPrefs.Save();
-            UpdateBestScoreLine();
-        }
     }
 
     void Update()
@@ -97,5 +101,16 @@ public class ScoreManager : MonoBehaviour
     public void ShowInGameScore()
     {
         scoreText.gameObject.SetActive(true);
+    }
+
+    public void OnPlayerDeath()
+    {
+        if (targetScore > highScore)
+        {
+            highScore = targetScore;
+            PlayerPrefs.SetInt("HighScore", highScore);
+            PlayerPrefs.Save();
+            UpdateBestScoreLine();
+        }
     }
 }

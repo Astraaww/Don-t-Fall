@@ -156,6 +156,7 @@ public class CameraAutoscrolling : MonoBehaviour
         mainMusicSource.Stop();
         mainMusicSource.volume = 0f;
         Object.FindFirstObjectByType<ScoreManager>()?.HideInGameScore();
+        Object.FindFirstObjectByType<ScoreManager>()?.OnPlayerDeath();
 
         StartCoroutine(DelayedDeathText());
     }
@@ -191,7 +192,6 @@ public class CameraAutoscrolling : MonoBehaviour
         Instantiate(spawnVFX, target.position, Quaternion.identity);
         source.PlayOneShot(spawnSfx);
         target.GetComponent<PlayerController>()?.Respawn();
-        //Cursor.visible = false;
         overlayImage.gameObject.SetActive(false);
     }
 

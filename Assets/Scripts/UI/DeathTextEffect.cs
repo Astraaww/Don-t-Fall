@@ -29,10 +29,13 @@ public class DeathTextEffect : MonoBehaviour
     {
         restartButton.SetActive(false);
         mainMenuButton.SetActive(false);
+        //PlayerPrefs.DeleteKey("RunCount");
 
         int runs = PlayerPrefs.GetInt("RunCount", 0);
         PlayerPrefs.SetInt("RunCount", runs + 1);
         PlayerPrefs.Save();
+        
+        //Debug.Log("Run : " + runs);
     }
 
     public void StartEffect(System.Action callback = null)
@@ -40,6 +43,7 @@ public class DeathTextEffect : MonoBehaviour
         onEffectComplete = callback;
 
         int runs = PlayerPrefs.GetInt("RunCount", 0);
+        Debug.Log("Run : " + runs);
         PlayerPrefs.SetInt("RunCount", runs + 1);
         PlayerPrefs.Save();
 
@@ -57,6 +61,7 @@ public class DeathTextEffect : MonoBehaviour
         restartButton.SetActive(false);
         mainMenuButton.SetActive(false);
         StartCoroutine(TypeText());
+        
     }
 
     IEnumerator TypeText()

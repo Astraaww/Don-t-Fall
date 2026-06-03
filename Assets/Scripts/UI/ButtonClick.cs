@@ -8,10 +8,10 @@ public class ButtonClick : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public AudioClip hoverSound;
     public Image buttonImage;
 
-    private void Awake()
+    private void OnEnable()
     {
         if (buttonImage != null)
-            buttonImage.color = new Color(1f, 1f, 1f, 0.5f);
+            buttonImage.color = new Color(1f, 1f, 1f, 0.3f);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
