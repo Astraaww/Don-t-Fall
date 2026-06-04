@@ -27,10 +27,6 @@ public class ScoreManager : MonoBehaviour
         highestY = player.position.y;
         UpdateBestScoreLine();
 
-        ////DEBUG
-        if (bestScoreDesbug != null)
-            bestScoreDesbug.text = "HighScore : " + highScore;
-
         //PlayerPrefs.DeleteAll();
         //PlayerPrefs.Save();
     }

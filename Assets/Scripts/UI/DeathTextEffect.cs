@@ -18,7 +18,7 @@ public class DeathTextEffect : MonoBehaviour
 
     private string GetDeathText(int runs)
     {
-        if (runs == 2) return "Why are you still trying|?";
+        if (runs == 20) return "Why are you still trying|?";
         if (runs == 21) return "You know there's no winning screen, right|...";
         if (runs == 35) return "Your perseverance borders on stupidity|...";
         if (runs == 37) return "What a waste of time... for both of us|...";
@@ -41,10 +41,6 @@ public class DeathTextEffect : MonoBehaviour
         onEffectComplete = callback;
         int runs = PlayerPrefs.GetInt("RunCount", 0);
         Debug.Log("Run : " + runs);
-
-        /////DEBUG 
-        if (runCountDebug != null)
-            runCountDebug.text = "Run : " + runs;
 
         PlayerPrefs.SetInt("RunCount", runs + 1);
         PlayerPrefs.Save();

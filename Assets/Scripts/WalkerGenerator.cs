@@ -28,6 +28,7 @@ public class WalkerGenerator : MonoBehaviour
     private List<int> lastChunkTopOpenings = new List<int>();
 
     public enum Grid { EMPTY, WALL }
+    private bool isGameOver = false;
 
     void Start()
     {
@@ -44,12 +45,22 @@ public class WalkerGenerator : MonoBehaviour
 
     void Update()
     {
-        float generateTriggerY = nextChunkYOffset - MapHeight * (1f - GenerateAheadThreshold);
+        if (!isGameOver && playerTransform.position.y == 0) return;
 
-        if (playerTransform.position.y > generateTriggerY)
+        float triggerY = nextChunkYOffset - MapHeight * (1f - GenerateAheadThreshold);
+        float referenceY = isGameOver
+            ? Camera.main.transform.position.y
+            : playerTransform.position.y;
+
+        if (referenceY > triggerY)
         {
             ClearChunkBelow(nextChunkYOffset - MapHeight * 2);
-            GenerateChunk(nextChunkYOffset);
+
+            if (isGameOver)
+                GenerateEmptyChunk(nextChunkYOffset);
+            else
+                GenerateChunk(nextChunkYOffset);
+
             nextChunkYOffset += MapHeight;
         }
     }
@@ -341,6 +352,8 @@ public class WalkerGenerator : MonoBehaviour
         Camera.main.transform.position = new Vector3(
             MapWidth / 2f, 2f,
             Camera.main.transform.position.z);
+
+        isGameOver = false;
     }
 
     void GenerateFloor()
@@ -353,4 +366,28 @@ public class WalkerGenerator : MonoBehaviour
             }
         }
     }
+
+    public void StartGameOver(int camY)
+    {
+        isGameOver = true;
+
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Dashable"))
+            Destroy(obj);
+
+        GenerateEmptyChunk(nextChunkYOffset);
+        GenerateEmptyChunk(nextChunkYOffset + MapHeight);
+        nextChunkYOffset += MapHeight * 2;
+    }
+
+    void GenerateEmptyChunk(int yOffset)
+    {
+        for (int x = 0; x < MapWidth; x++)
+        {
+            for (int y = 0; y < MapHeight; y++)
+            {
+                tilemapWalls.SetTile(new Vector3Int(x, y + yOffset, 0), Wall);
+            }
+        }
+    }
+
 }

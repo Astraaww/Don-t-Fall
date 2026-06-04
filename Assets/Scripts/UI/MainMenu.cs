@@ -46,6 +46,7 @@ public class MainMenu : MonoBehaviour
         source.clip = clickSound;
         source.Play();
         controlsText.enabled = !controlsText.enabled;
+        if (controlsText.enabled) creditsText.enabled = false;
     }
 
     public void ToggleCredits()
@@ -53,5 +54,6 @@ public class MainMenu : MonoBehaviour
         source.clip = clickSound;
         source.Play();
         creditsText.enabled = !creditsText.enabled;
+        if (creditsText.enabled) controlsText.enabled = false;
     }
 }
