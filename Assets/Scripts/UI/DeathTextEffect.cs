@@ -5,6 +5,7 @@ using TMPro;
 public class DeathTextEffect : MonoBehaviour
 {
     public TextMeshProUGUI text;
+    public TextMeshProUGUI runCountDebug;
     public AudioSource audioSource;
     public AudioClip typingSound;
     public float delayBetweenLetters = 0.1f;
@@ -31,7 +32,7 @@ public class DeathTextEffect : MonoBehaviour
     {
         restartButton.SetActive(false);
         mainMenuButton.SetActive(false);
-        //PlayerPrefs.SetInt("RunCount", 0);
+        PlayerPrefs.SetInt("RunCount", 0);
         //PlayerPrefs.Save();
     }
 
@@ -40,6 +41,11 @@ public class DeathTextEffect : MonoBehaviour
         onEffectComplete = callback;
         int runs = PlayerPrefs.GetInt("RunCount", 0);
         Debug.Log("Run : " + runs);
+
+        /////DEBUG 
+        if (runCountDebug != null)
+            runCountDebug.text = "Run : " + runs;
+
         PlayerPrefs.SetInt("RunCount", runs + 1);
         PlayerPrefs.Save();
         string chosenText = GetDeathText(runs);

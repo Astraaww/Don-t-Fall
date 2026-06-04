@@ -11,6 +11,7 @@ public class ScoreManager : MonoBehaviour
     public LineRenderer bestScoreLine;
     public Transform playerStart;
     public TextMeshPro bestScoreLineText;
+    public TextMeshProUGUI bestScoreDesbug;
 
     private bool isRunning = false;
     private int displayedScore = 0;
@@ -25,6 +26,13 @@ public class ScoreManager : MonoBehaviour
         hasPlayedBefore = PlayerPrefs.GetInt("HighScore", 0) > 0;
         highestY = player.position.y;
         UpdateBestScoreLine();
+
+        ////DEBUG
+        if (bestScoreDesbug != null)
+            bestScoreDesbug.text = "HighScore : " + highScore;
+
+        //PlayerPrefs.DeleteAll();
+        //PlayerPrefs.Save();
     }
 
     void UpdateBestScoreLine()
@@ -111,5 +119,9 @@ public class ScoreManager : MonoBehaviour
 
         hasPlayedBefore = true;
         UpdateBestScoreLine();
+
+        ////DEBUG 
+        if (bestScoreDesbug != null)
+            bestScoreDesbug.text = "HighScore : " + highScore;
     }
 }
